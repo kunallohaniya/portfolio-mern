@@ -11,15 +11,13 @@ export default defineConfig({
     strictPort: false
   },
   optimizeDeps: {
+    force: true,
     include: [
       'react',
       'react-dom',
       'react-router-dom',
       'react-hot-toast',
-      'react-helmet-async',
-      'framer-motion',
-      'axios',
-      'react-icons'
+      'react-helmet-async'
     ]
   },
   build: {
