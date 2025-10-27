@@ -9,7 +9,6 @@ import Achievements from '../components/Achievements';
 import Blog from '../components/Blog';
 import Contact from '../components/Contact';
 import EasterEggTerminal from '../components/EasterEggTerminal';
-import Navigation from '../components/Navigation';
 import SEO from '../components/SEO';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 
@@ -28,8 +27,6 @@ const Home = () => {
         url={seoData.canonicalUrl}
         author={personalInfo.name}
       />
-      
-      <Navigation />
       
       <motion.main
         initial={{ opacity: 0 }}

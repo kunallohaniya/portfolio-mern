@@ -43,6 +43,12 @@
   --toast-bg: #1e293b;
   --toast-color: #f1f5f9;
   --toast-border: #334155;
+  
+  /* Dark mode color overrides for better contrast */
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #e2e8f0;
+  --color-bg-primary: #0f172a;
+  --color-bg-secondary: #1e293b;
 }
 
 /* High contrast toast colors */
@@ -61,8 +67,8 @@ body {
 
 /* Dark theme */
 body.dark {
-  background-color: var(--color-bg-dark);
-  color: var(--color-text-dark);
+  background-color: #0f172a;
+  color: #f8fafc;
 }
 
 /* High contrast theme */
@@ -73,11 +79,17 @@ body.high-contrast {
 
 /* Premium glass effect */
 .glass-premium {
-  background: var(--glass-bg);
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+}
+
+.dark .glass-premium {
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 /* Premium gradient text */
@@ -131,8 +143,8 @@ body.high-contrast {
 }
 
 .dark .btn-outline {
-  color: #8E2DE2;
-  border-color: #8E2DE2;
+  color: #a78bfa;
+  border-color: #a78bfa;
 }
 
 .btn-outline:hover {
@@ -143,7 +155,9 @@ body.high-contrast {
 }
 
 .dark .btn-outline:hover {
-  background: #8E2DE2;
+  background: #8b5cf6;
+  color: #ffffff;
+  border-color: #8b5cf6;
 }
 
 /* Premium interactive glow effect */
@@ -226,6 +240,44 @@ body.high-contrast {
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #7224b5;
+}
+
+/* Enhanced dark mode contrast */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  color: #f8fafc;
+}
+
+.dark p {
+  color: #e2e8f0;
+}
+
+.dark a {
+  color: #a78bfa;
+}
+
+.dark a:hover {
+  color: #c4b5fd;
+}
+
+/* Dark mode input fields */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #1e293b;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #f8fafc;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: #a78bfa;
+  background-color: #0f172a;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #94a3b8;
 }
 
 /* High contrast theme overrides */

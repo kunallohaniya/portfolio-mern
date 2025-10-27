@@ -202,12 +202,6 @@ const Hero = () => {
         transition={{ duration: 5, repeat: Infinity }}
       />
 
-      {/* Floating Developer Tags */}
-      <FloatingTags />
-
-      {/* Premium Cursor Glow */}
-      <CursorGlow />
-
       {/* Premium Content */}
       <div className="relative z-20 container-premium text-center">
         <AnimatePresence>
@@ -225,7 +219,7 @@ const Hero = () => {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="inline-flex items-center px-6 py-3 rounded-full glass-premium border border-white/20 dark:border-white/10 shadow-xl"
               >
-                <span className="text-sm font-medium text-dark-700 dark:text-dark-300 font-heading">
+                <span className="text-sm font-medium text-gray-800 dark:text-slate-100 font-heading">
                   👋 Hello, I'm
                 </span>
               </motion.div>
@@ -252,7 +246,7 @@ const Hero = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.8 }}
-                className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-dark-800 dark:text-white min-h-[3rem] flex items-center justify-center font-heading"
+                className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900 dark:text-slate-50 min-h-[3rem] flex items-center justify-center font-heading"
               >
                 <TypewriterText texts={typewriterTexts} speed={150} />
               </motion.div>
@@ -262,7 +256,7 @@ const Hero = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 1.0 }}
-                className="text-body-lg text-dark-600 dark:text-dark-300 max-w-3xl mx-auto leading-relaxed"
+                className="text-body-lg text-gray-700 dark:text-slate-200 max-w-3xl mx-auto leading-relaxed"
               >
                 {personalInfo.bio}
               </motion.p>
@@ -323,7 +317,7 @@ const Hero = () => {
                     transition={{ duration: 0.5, delay: 1.6 + index * 0.1 }}
                     whileHover={{ scale: 1.2, rotate: 5 }}
                     whileTap={{ scale: 0.9 }}
-                    className="p-4 rounded-full glass-premium border border-white/20 dark:border-white/10 text-dark-700 dark:text-dark-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-300 relative overflow-hidden group interactive-glow"
+                    className="p-4 rounded-full glass-premium border border-white/20 dark:border-white/20 text-gray-800 dark:text-slate-100 hover:text-primary-600 dark:hover:text-violet-400 hover:bg-primary-50 dark:hover:bg-violet-500/20 transition-all duration-300 relative overflow-hidden group interactive-glow"
                     aria-label={label}
                   >
                     <Icon className="w-6 h-6 relative z-10" />
@@ -346,7 +340,7 @@ const Hero = () => {
           onClick={scrollToAbout}
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="p-3 rounded-full glass-premium border border-white/20 dark:border-white/10 text-dark-700 dark:text-dark-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-300 relative overflow-hidden group interactive-glow"
+          className="p-3 rounded-full glass-premium border border-white/20 dark:border-white/20 text-gray-800 dark:text-slate-100 hover:text-primary-600 dark:hover:text-violet-400 transition-colors duration-300 relative overflow-hidden group interactive-glow"
           aria-label="Scroll down"
         >
           <FaArrowDown className="w-5 h-5 relative z-10" />

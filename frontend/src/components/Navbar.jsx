@@ -63,25 +63,25 @@ const Navbar = () => {
       }`}
     >
       <div className="container-premium">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 py-2">
           {/* Logo */}
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className="text-2xl font-bold gradient-text-premium cursor-pointer"
+            className="text-2xl font-bold gradient-text-premium cursor-pointer flex-shrink-0"
             onClick={() => scrollToSection('home')}
           >
-            KL
+            Portfolio
           </motion.div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-2 lg:space-x-6">
             {navItems.map((item, index) => (
               <motion.button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="text-dark-700 dark:text-dark-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors duration-300"
+                className="text-gray-800 dark:text-slate-100 hover:text-primary-600 dark:hover:text-violet-400 font-medium transition-colors duration-300 px-2 lg:px-3 py-2 text-sm lg:text-base whitespace-nowrap"
               >
                 {item.label}
               </motion.button>
@@ -89,12 +89,12 @@ const Navbar = () => {
           </div>
 
           {/* Theme Toggle & Mobile Menu Button */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3 flex-shrink-0">
             <motion.button
               onClick={toggleTheme}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="p-2 rounded-full glass-premium border border-white/20 dark:border-white/10 text-dark-700 dark:text-dark-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-300"
+              className="p-2 rounded-full glass-premium border border-white/20 dark:border-white/20 text-gray-800 dark:text-slate-100 hover:text-primary-600 dark:hover:text-violet-400 transition-colors duration-300"
               aria-label="Toggle theme"
             >
               <AnimatePresence mode="wait">
@@ -127,7 +127,7 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="md:hidden p-2 rounded-full glass-premium border border-white/20 dark:border-white/10 text-dark-700 dark:text-dark-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-300"
+              className="md:hidden p-2 rounded-full glass-premium border border-white/20 dark:border-white/20 text-gray-800 dark:text-slate-100 hover:text-primary-600 dark:hover:text-violet-400 transition-colors duration-300"
               aria-label="Toggle menu"
             >
               <AnimatePresence mode="wait">
@@ -176,7 +176,7 @@ const Navbar = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                     whileHover={{ scale: 1.02, x: 10 }}
-                    className="w-full text-left text-dark-700 dark:text-dark-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium py-2 transition-colors duration-300"
+                    className="w-full text-left text-gray-800 dark:text-slate-100 hover:text-primary-600 dark:hover:text-violet-400 font-medium py-2 transition-colors duration-300"
                   >
                     {item.label}
                   </motion.button>
