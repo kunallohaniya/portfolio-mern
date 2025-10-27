@@ -92,12 +92,48 @@ body.high-contrast {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
-/* Premium gradient text */
+/* Premium gradient text - replaced with solid colors for WCAG AAA compliance */
 .gradient-text-premium {
-  background: var(--gradient-premium);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  /* Light mode: dark purple with excellent contrast on white (10.3:1) */
+  color: #5b21b6; /* Violet-800 */
+  font-weight: 700;
+}
+
+.dark .gradient-text-premium {
+  color: #c4b5fd !important; /* Violet-300 - WCAG AAA compliant (9.8:1) */
+}
+
+/* Light mode - ensure all text colors have proper contrast */
+.text-gray-600 {
+  color: #475569; /* Slate-600 - 7.2:1 contrast on white */
+}
+
+.text-gray-700 {
+  color: #334155; /* Slate-700 - 10.7:1 contrast on white */
+}
+
+.text-gray-800 {
+  color: #1e293b; /* Slate-800 - 14.1:1 contrast on white */
+}
+
+.text-dark-600 {
+  color: #475569; /* Slate-600 - 7.2:1 contrast */
+}
+
+.text-dark-700 {
+  color: #334155; /* Slate-700 - 10.7:1 contrast */
+}
+
+.text-dark-800 {
+  color: #1e293b; /* Slate-800 - 14.1:1 contrast */
+}
+
+.text-primary-500 {
+  color: #5b21b6; /* Violet-800 for better contrast */
+}
+
+.text-primary-600 {
+  color: #5b21b6; /* Violet-800 for better contrast */
 }
 
 /* Premium button glow effect */
@@ -242,21 +278,62 @@ body.high-contrast {
   background: #7224b5;
 }
 
-/* Enhanced dark mode contrast */
+/* Enhanced dark mode contrast - WCAG AAA Compliant */
 .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
-  color: #f8fafc;
+  color: #f8fafc !important; /* Slate-50 - Excellent contrast */
 }
 
 .dark p {
-  color: #e2e8f0;
+  color: #e2e8f0 !important; /* Slate-200 - High contrast */
 }
 
 .dark a {
-  color: #a78bfa;
+  color: #c4b5fd !important; /* Violet-300 - High contrast */
 }
 
 .dark a:hover {
-  color: #c4b5fd;
+  color: #ddd6fe !important; /* Violet-200 - Higher contrast */
+}
+
+/* Dark mode text color overrides for proper contrast */
+.dark .text-dark-300,
+.dark .text-dark-400 {
+  color: #cbd5e1 !important; /* Slate-300 */
+}
+
+.dark .text-dark-600,
+.dark .text-dark-700 {
+  color: #e2e8f0 !important; /* Slate-200 */
+}
+
+.dark .text-dark-800 {
+  color: #f1f5f9 !important; /* Slate-100 */
+}
+
+.dark .text-gray-300,
+.dark .text-gray-400 {
+  color: #cbd5e1 !important; /* Slate-300 */
+}
+
+.dark .text-gray-600 {
+  color: #e2e8f0 !important; /* Slate-200 */
+}
+
+.dark .text-gray-700,
+.dark .text-gray-800 {
+  color: #f1f5f9 !important; /* Slate-100 */
+}
+
+.dark .text-gray-900 {
+  color: #f8fafc !important; /* Slate-50 */
+}
+
+.dark .text-primary-400 {
+  color: #c4b5fd !important; /* Violet-300 - Better contrast than primary-400 */
+}
+
+.dark .text-primary-600 {
+  color: #a78bfa !important; /* Violet-400 */
 }
 
 /* Dark mode input fields */

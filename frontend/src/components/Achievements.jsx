@@ -251,6 +251,8 @@ const AchievementBadge = React.memo(({ achievement, index, isActive }) => {
             initial={{ scale: 0 }}
             animate={{ scale: isHovered ? 1 : 0 }}
             transition={{ duration: 0.2 }}
+            aria-label={`View ${achievement.title} certificate`}
+            title={`View ${achievement.title} certificate`}
           >
             <FaExternalLinkAlt className="w-3 h-3" />
           </motion.button>
