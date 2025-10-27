@@ -1,0 +1,35 @@
+{
+  "name": "portfolio-mern",
+  "version": "1.0.0",
+  "description": "A secure, dynamic, and stunning MERN portfolio for interviews and freelancing",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install && cd ..",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start",
+    "lint": "cd frontend && npm run lint && cd ../backend && npm run lint",
+    "test": "cd backend && npm test"
+  },
+  "keywords": [
+    "portfolio",
+    "mern",
+    "react",
+    "node",
+    "mongodb",
+    "express"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  },
+  "dependencies": {
+    "@emailjs/browser": "^4.4.1",
+    "framer-motion": "^12.23.24",
+    "hls.js": "^1.6.13",
+    "zustand": "^5.0.8"
+  }
+}

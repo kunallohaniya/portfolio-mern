@@ -1,0 +1,533 @@
+{
+  "personalInfo": {
+    "name": "Kunal Lohaniya",
+    "title": "Full Stack Developer",
+    "subtitle": "MERN Stack Specialist",
+    "email": "kunal.lohaniya@example.com",
+    "phone": "+91 (999) 123-4567",
+    "location": "Mumbai, India",
+    "bio": "Passionate full-stack developer with expertise in modern web technologies. I love creating innovative solutions and turning ideas into reality through code. Specializing in MERN stack development with a focus on scalable, performant applications.",
+    "resumeUrl": "/resume.pdf",
+    "avatar": "/avatar.jpg",
+    "coverImage": "/cover.jpg",
+    "timezone": "Asia/Kolkata",
+    "languages": ["English", "Hindi", "Gujarati"],
+    "availability": "Available for freelance projects",
+    "yearsOfExperience": 3
+  },
+  "socialLinks": {
+    "github": "https://github.com/kunallohaniya",
+    "linkedin": "https://linkedin.com/in/kunallohaniya",
+    "twitter": "https://twitter.com/kunallohaniya",
+    "instagram": "https://instagram.com/kunallohaniya",
+    "email": "mailto:kunal.lohaniya@example.com",
+    "portfolio": "https://kunallohaniya.dev",
+    "blog": "https://blog.kunallohaniya.dev"
+  },
+  "skills": {
+    "frontend": [
+      { "name": "React", "level": 95, "icon": "⚛️", "category": "Framework", "years": 3 },
+      { "name": "JavaScript", "level": 90, "icon": "🟨", "category": "Language", "years": 4 },
+      { "name": "TypeScript", "level": 85, "icon": "🔷", "category": "Language", "years": 2 },
+      { "name": "HTML/CSS", "level": 95, "icon": "🎨", "category": "Markup", "years": 4 },
+      { "name": "Tailwind CSS", "level": 90, "icon": "💨", "category": "Framework", "years": 2 },
+      { "name": "Next.js", "level": 80, "icon": "▲", "category": "Framework", "years": 1 },
+      { "name": "Vue.js", "level": 75, "icon": "💚", "category": "Framework", "years": 1 },
+      { "name": "SASS/SCSS", "level": 85, "icon": "💅", "category": "Preprocessor", "years": 2 }
+    ],
+    "backend": [
+      { "name": "Node.js", "level": 90, "icon": "🟢", "category": "Runtime", "years": 3 },
+      { "name": "Express.js", "level": 85, "icon": "🚀", "category": "Framework", "years": 3 },
+      { "name": "MongoDB", "level": 88, "icon": "🍃", "category": "Database", "years": 2 },
+      { "name": "PostgreSQL", "level": 80, "icon": "🐘", "category": "Database", "years": 1 },
+      { "name": "Python", "level": 75, "icon": "🐍", "category": "Language", "years": 1 },
+      { "name": "Django", "level": 70, "icon": "🎯", "category": "Framework", "years": 1 },
+      { "name": "REST APIs", "level": 90, "icon": "🔌", "category": "Architecture", "years": 3 },
+      { "name": "GraphQL", "level": 75, "icon": "📊", "category": "Query Language", "years": 1 }
+    ],
+    "tools": [
+      { "name": "Git", "level": 90, "icon": "📝", "category": "Version Control", "years": 3 },
+      { "name": "Docker", "level": 80, "icon": "🐳", "category": "Containerization", "years": 1 },
+      { "name": "AWS", "level": 75, "icon": "☁️", "category": "Cloud Platform", "years": 1 },
+      { "name": "Vercel", "level": 85, "icon": "▲", "category": "Deployment", "years": 2 },
+      { "name": "Figma", "level": 80, "icon": "🎨", "category": "Design", "years": 2 },
+      { "name": "VS Code", "level": 95, "icon": "💻", "category": "Editor", "years": 4 },
+      { "name": "Linux", "level": 85, "icon": "🐧", "category": "OS", "years": 3 },
+      { "name": "CI/CD", "level": 75, "icon": "🔄", "category": "DevOps", "years": 1 }
+    ]
+  },
+  "projects": [
+    {
+      "id": 1,
+      "title": "E-Commerce Platform",
+      "description": "A full-stack e-commerce solution with React, Node.js, and MongoDB. Features include user authentication, payment integration, and admin dashboard.",
+      "longDescription": "Built a comprehensive e-commerce platform from scratch using modern web technologies. Implemented secure user authentication, real-time inventory management, and integrated Stripe payment processing. The admin dashboard provides analytics and order management capabilities.",
+      "image": "/projects/ecommerce.jpg",
+      "technologies": ["React", "Node.js", "MongoDB", "Stripe", "Tailwind CSS"],
+      "category": "Full Stack",
+      "githubUrl": "https://github.com/kunallohaniya/ecommerce",
+      "liveUrl": "https://ecommerce.kunallohaniya.dev",
+      "featured": true,
+      "status": "Completed",
+      "startDate": "2023-06-01",
+      "endDate": "2023-08-15",
+      "teamSize": 1,
+      "role": "Full Stack Developer",
+      "highlights": [
+        "Implemented secure payment processing with Stripe",
+        "Built responsive admin dashboard with real-time analytics",
+        "Optimized performance achieving 95+ Lighthouse score"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Task Management App",
+      "description": "A collaborative task management application with real-time updates, drag-and-drop functionality, and team collaboration features.",
+      "longDescription": "Developed a modern task management application with real-time collaboration features. Implemented WebSocket connections for live updates, drag-and-drop functionality for task organization, and comprehensive team management capabilities.",
+      "image": "/projects/taskmanager.jpg",
+      "technologies": ["React", "Socket.io", "Express", "PostgreSQL", "Material-UI"],
+      "category": "Full Stack",
+      "githubUrl": "https://github.com/kunallohaniya/taskmanager",
+      "liveUrl": "https://tasks.kunallohaniya.dev",
+      "featured": true,
+      "status": "Completed",
+      "startDate": "2023-03-01",
+      "endDate": "2023-05-30",
+      "teamSize": 2,
+      "role": "Lead Developer",
+      "highlights": [
+        "Real-time collaboration with WebSocket integration",
+        "Intuitive drag-and-drop interface",
+        "Advanced team management and permissions"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Weather Dashboard",
+      "description": "A responsive weather dashboard with location-based forecasts, interactive maps, and detailed weather analytics.",
+      "longDescription": "Created a comprehensive weather application with location-based forecasts, interactive maps, and detailed weather analytics. Integrated multiple weather APIs for accurate data and implemented geolocation services for automatic location detection.",
+      "image": "/projects/weather.jpg",
+      "technologies": ["React", "OpenWeather API", "Chart.js", "CSS3"],
+      "category": "Frontend",
+      "githubUrl": "https://github.com/kunallohaniya/weather",
+      "liveUrl": "https://weather.kunallohaniya.dev",
+      "featured": false,
+      "status": "Completed",
+      "startDate": "2023-01-15",
+      "endDate": "2023-02-28",
+      "teamSize": 1,
+      "role": "Frontend Developer",
+      "highlights": [
+        "Interactive weather maps with multiple layers",
+        "Detailed analytics with Chart.js visualizations",
+        "Progressive Web App with offline capabilities"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Blog CMS",
+      "description": "A content management system for blogs with markdown support, SEO optimization, and comment system.",
+      "longDescription": "Built a modern blog CMS with markdown support, SEO optimization, and a comprehensive comment system. Implemented user authentication, content scheduling, and analytics dashboard for content creators.",
+      "image": "/projects/blog.jpg",
+      "technologies": ["Next.js", "MongoDB", "NextAuth", "Tailwind CSS"],
+      "category": "Full Stack",
+      "githubUrl": "https://github.com/kunallohaniya/blog-cms",
+      "liveUrl": "https://blog.kunallohaniya.dev",
+      "featured": true,
+      "status": "Completed",
+      "startDate": "2023-09-01",
+      "endDate": "2023-11-15",
+      "teamSize": 1,
+      "role": "Full Stack Developer",
+      "highlights": [
+        "SEO-optimized with Next.js and structured data",
+        "Markdown editor with live preview",
+        "Advanced comment system with moderation tools"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Portfolio Website",
+      "description": "A modern, responsive portfolio website with smooth animations, dark mode, and contact form integration.",
+      "longDescription": "Designed and developed a modern portfolio website showcasing my skills and projects. Implemented smooth animations, dark mode toggle, and integrated contact form with backend processing.",
+      "image": "/projects/portfolio.jpg",
+      "technologies": ["React", "Framer Motion", "Tailwind CSS", "EmailJS"],
+      "category": "Frontend",
+      "githubUrl": "https://github.com/kunallohaniya/portfolio",
+      "liveUrl": "https://kunallohaniya.dev",
+      "featured": false,
+      "status": "Completed",
+      "startDate": "2023-12-01",
+      "endDate": "2024-01-15",
+      "teamSize": 1,
+      "role": "Frontend Developer",
+      "highlights": [
+        "Smooth animations with Framer Motion",
+        "Responsive design with mobile-first approach",
+        "Integrated contact form with email notifications"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "API Gateway",
+      "description": "A microservices API gateway with authentication, rate limiting, and request routing capabilities.",
+      "longDescription": "Developed a robust API gateway for microservices architecture with JWT authentication, rate limiting, and intelligent request routing. Implemented monitoring and logging for better observability.",
+      "image": "/projects/api-gateway.jpg",
+      "technologies": ["Node.js", "Express", "Redis", "JWT", "Docker"],
+      "category": "Backend",
+      "githubUrl": "https://github.com/kunallohaniya/api-gateway",
+      "liveUrl": null,
+      "featured": false,
+      "status": "Completed",
+      "startDate": "2023-07-01",
+      "endDate": "2023-09-30",
+      "teamSize": 3,
+      "role": "Backend Developer",
+      "highlights": [
+        "Microservices architecture with service discovery",
+        "Advanced rate limiting and throttling",
+        "Comprehensive monitoring and logging system"
+      ]
+    }
+  ],
+  "achievements": [
+    {
+      "id": 1,
+      "title": "AWS Certified Developer",
+      "organization": "Amazon Web Services",
+      "date": "2023-08-15",
+      "description": "Certified in developing and maintaining applications on AWS platform.",
+      "icon": "☁️",
+      "certificateUrl": "/certificates/aws-developer.pdf",
+      "type": "Certification",
+      "credentialId": "AWS-DEV-2023-001"
+    },
+    {
+      "id": 2,
+      "title": "React Developer Certification",
+      "organization": "Meta",
+      "date": "2023-06-20",
+      "description": "Professional certification in React development and modern JavaScript.",
+      "icon": "⚛️",
+      "certificateUrl": "/certificates/react-cert.pdf",
+      "type": "Certification",
+      "credentialId": "META-REACT-2023-002"
+    },
+    {
+      "id": 3,
+      "title": "MongoDB Developer Certification",
+      "organization": "MongoDB University",
+      "date": "2022-12-10",
+      "description": "Certified in MongoDB database design and development.",
+      "icon": "🍃",
+      "certificateUrl": "/certificates/mongodb-cert.pdf",
+      "type": "Certification",
+      "credentialId": "MONGODB-DEV-2022-003"
+    },
+    {
+      "id": 4,
+      "title": "Hackathon Winner",
+      "organization": "TechCrunch Disrupt",
+      "date": "2022-09-15",
+      "description": "First place winner in the AI/ML category for innovative healthcare solution.",
+      "icon": "🏆",
+      "certificateUrl": "/certificates/hackathon-winner.pdf",
+      "type": "Award",
+      "credentialId": "TC-HACK-2022-001"
+    },
+    {
+      "id": 5,
+      "title": "Open Source Contributor",
+      "organization": "GitHub",
+      "date": "2021-01-01",
+      "description": "Active contributor to various open source projects with 1000+ commits.",
+      "icon": "🌟",
+      "certificateUrl": null,
+      "type": "Recognition",
+      "credentialId": "GITHUB-CONTRIB-2021"
+    },
+    {
+      "id": 6,
+      "title": "Tech Conference Speaker",
+      "organization": "DevConf 2023",
+      "date": "2023-04-20",
+      "description": "Speaker at DevConf 2023 presenting on modern web development trends.",
+      "icon": "🎤",
+      "certificateUrl": "/certificates/speaker-cert.pdf",
+      "type": "Speaking",
+      "credentialId": "DEVCONF-2023-004"
+    }
+  ],
+  "experience": [
+    {
+      "id": 1,
+      "title": "Senior Full Stack Developer",
+      "company": "Tech Corp",
+      "location": "San Francisco, CA",
+      "period": "2022-01-01",
+      "endDate": null,
+      "description": "Leading development of scalable web applications using React, Node.js, and cloud technologies.",
+      "responsibilities": [
+        "Architected and developed microservices-based applications",
+        "Led a team of 5 developers in agile development process",
+        "Implemented CI/CD pipelines reducing deployment time by 60%",
+        "Mentored junior developers and conducted code reviews"
+      ],
+      "technologies": ["React", "Node.js", "AWS", "Docker", "Kubernetes"],
+      "type": "Full-time",
+      "current": true
+    },
+    {
+      "id": 2,
+      "title": "Full Stack Developer",
+      "company": "StartupXYZ",
+      "location": "New York, NY",
+      "period": "2020-06-01",
+      "endDate": "2021-12-31",
+      "description": "Developed full-stack web applications and mobile-responsive interfaces.",
+      "responsibilities": [
+        "Built responsive web applications using React and Vue.js",
+        "Designed and implemented RESTful APIs using Express.js",
+        "Collaborated with design team to create user-friendly interfaces",
+        "Optimized application performance resulting in 40% faster load times"
+      ],
+      "technologies": ["React", "Vue.js", "Express", "MongoDB", "PostgreSQL"],
+      "type": "Full-time",
+      "current": false
+    },
+    {
+      "id": 3,
+      "title": "Frontend Developer",
+      "company": "Web Solutions Inc",
+      "location": "Austin, TX",
+      "period": "2019-03-01",
+      "endDate": "2020-05-31",
+      "description": "Focused on creating engaging user interfaces and improving user experience.",
+      "responsibilities": [
+        "Developed responsive web applications using React and Angular",
+        "Collaborated with UX/UI designers to implement design systems",
+        "Optimized frontend performance and accessibility",
+        "Participated in agile development and sprint planning"
+      ],
+      "technologies": ["React", "Angular", "TypeScript", "SASS", "Jest"],
+      "type": "Full-time",
+      "current": false
+    }
+  ],
+  "education": [
+    {
+      "id": 1,
+      "degree": "Bachelor of Computer Science",
+      "institution": "University of Technology",
+      "location": "Boston, MA",
+      "period": "2015-09-01",
+      "endDate": "2019-05-31",
+      "description": "Focused on software engineering, algorithms, and data structures.",
+      "gpa": "3.8/4.0",
+      "relevantCourses": [
+        "Data Structures and Algorithms",
+        "Software Engineering",
+        "Database Systems",
+        "Computer Networks",
+        "Machine Learning"
+      ],
+      "type": "Bachelor's Degree",
+      "graduated": true
+    },
+    {
+      "id": 2,
+      "degree": "Full Stack Web Development Bootcamp",
+      "institution": "Coding Academy",
+      "location": "Online",
+      "period": "2019-01-01",
+      "endDate": "2019-06-30",
+      "description": "Intensive 6-month program covering modern web development technologies.",
+      "gpa": null,
+      "relevantCourses": [
+        "React and Redux",
+        "Node.js and Express",
+        "MongoDB and Mongoose",
+        "Git and GitHub",
+        "Deployment and DevOps"
+      ],
+      "type": "Bootcamp",
+      "graduated": true
+    }
+  ],
+  "blogPosts": [
+    {
+      "id": 1,
+      "title": "Building Scalable MERN Applications",
+      "excerpt": "Learn how to architect and build scalable MERN stack applications with best practices for performance and maintainability.",
+      "content": "Full article content here...",
+      "author": "Kunal Lohaniya",
+      "date": "2024-01-15",
+      "readTime": "8 min read",
+      "tags": ["MERN", "Node.js", "MongoDB", "React"],
+      "image": "/blog/mern-scalable.jpg",
+      "featured": true,
+      "slug": "building-scalable-mern-applications",
+      "status": "published",
+      "views": 1250,
+      "likes": 45
+    },
+    {
+      "id": 2,
+      "title": "Modern React Patterns and Hooks",
+      "excerpt": "Exploring advanced React patterns, custom hooks, and how to write more maintainable React code.",
+      "content": "Full article content here...",
+      "author": "Kunal Lohaniya",
+      "date": "2024-01-10",
+      "readTime": "6 min read",
+      "tags": ["React", "Hooks", "JavaScript", "Frontend"],
+      "image": "/blog/react-patterns.jpg",
+      "featured": false,
+      "slug": "modern-react-patterns-hooks",
+      "status": "published",
+      "views": 890,
+      "likes": 32
+    },
+    {
+      "id": 3,
+      "title": "Database Design Best Practices",
+      "excerpt": "Essential database design principles for MongoDB and how to optimize your data models for better performance.",
+      "content": "Full article content here...",
+      "author": "Kunal Lohaniya",
+      "date": "2024-01-05",
+      "readTime": "10 min read",
+      "tags": ["MongoDB", "Database", "Performance", "Backend"],
+      "image": "/blog/database-design.jpg",
+      "featured": false,
+      "slug": "database-design-best-practices",
+      "status": "published",
+      "views": 1100,
+      "likes": 38
+    },
+    {
+      "id": 4,
+      "title": "Deploying Full-Stack Applications",
+      "excerpt": "A comprehensive guide to deploying MERN applications using modern cloud platforms and CI/CD pipelines.",
+      "content": "Full article content here...",
+      "author": "Kunal Lohaniya",
+      "date": "2024-01-01",
+      "readTime": "12 min read",
+      "tags": ["Deployment", "DevOps", "AWS", "CI/CD"],
+      "image": "/blog/deployment-guide.jpg",
+      "featured": true,
+      "slug": "deploying-full-stack-applications",
+      "status": "published",
+      "views": 1500,
+      "likes": 52
+    }
+  ],
+  "contactForm": {
+    "fields": [
+      {
+        "name": "name",
+        "label": "Full Name",
+        "type": "text",
+        "required": true,
+        "placeholder": "Enter your full name",
+        "validation": {
+          "minLength": 2,
+          "maxLength": 50
+        }
+      },
+      {
+        "name": "email",
+        "label": "Email Address",
+        "type": "email",
+        "required": true,
+        "placeholder": "Enter your email address",
+        "validation": {
+          "pattern": "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"
+        }
+      },
+      {
+        "name": "subject",
+        "label": "Subject",
+        "type": "text",
+        "required": true,
+        "placeholder": "What is this about?",
+        "validation": {
+          "minLength": 5,
+          "maxLength": 100
+        }
+      },
+      {
+        "name": "message",
+        "label": "Message",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "Tell me about your project or just say hello!",
+        "rows": 5,
+        "validation": {
+          "minLength": 10,
+          "maxLength": 1000
+        }
+      }
+    ]
+  },
+  "terminalCommands": {
+    "help": {
+      "description": "Show available commands",
+      "usage": "help",
+      "output": "Available commands: help, skills, projects, about, contact, clear, theme, blog"
+    },
+    "skills": {
+      "description": "Display technical skills",
+      "usage": "skills",
+      "output": "Frontend: React, JavaScript, TypeScript, HTML/CSS, Tailwind CSS\nBackend: Node.js, Express, MongoDB, PostgreSQL, Python\nTools: Git, Docker, AWS, Vercel, Figma, VS Code"
+    },
+    "projects": {
+      "description": "Show featured projects",
+      "usage": "projects",
+      "output": "Featured Projects:\n1. E-Commerce Platform - Full Stack\n2. Task Management App - Full Stack\n3. Blog CMS - Full Stack\n\nType \"projects --all\" to see all projects"
+    },
+    "about": {
+      "description": "Display personal information",
+      "usage": "about",
+      "output": "Name: Kunal Lohaniya\nTitle: Full Stack Developer\nLocation: Mumbai, India\nBio: Passionate full-stack developer with expertise in modern web technologies."
+    },
+    "contact": {
+      "description": "Show contact information",
+      "usage": "contact",
+      "output": "Email: kunal.lohaniya@example.com\nPhone: +91 (999) 123-4567\nGitHub: https://github.com/kunallohaniya\nLinkedIn: https://linkedin.com/in/kunallohaniya"
+    },
+    "theme": {
+      "description": "Toggle dark/light theme",
+      "usage": "theme",
+      "output": "Theme toggled successfully!"
+    },
+    "clear": {
+      "description": "Clear terminal screen",
+      "usage": "clear",
+      "output": ""
+    },
+    "blog": {
+      "description": "Show latest blog posts",
+      "usage": "blog",
+      "output": "Latest Blog Posts:\n1. Building Scalable MERN Applications\n2. Modern React Patterns and Hooks\n3. Database Design Best Practices\n\nType \"blog --all\" to see all posts"
+    }
+  },
+  "seo": {
+    "title": "Kunal Lohaniya - Full Stack Developer | MERN Stack Specialist",
+    "description": "Professional portfolio of Kunal Lohaniya, a passionate full-stack developer specializing in MERN stack development. Explore projects, skills, and experience.",
+    "keywords": ["full stack developer", "MERN stack", "React", "Node.js", "MongoDB", "JavaScript", "portfolio"],
+    "author": "Kunal Lohaniya",
+    "ogImage": "/og-image.jpg",
+    "twitterCard": "summary_large_image",
+    "canonicalUrl": "https://kunallohaniya.dev"
+  },
+  "analytics": {
+    "googleAnalytics": {
+      "enabled": true,
+      "trackingId": "GA_MEASUREMENT_ID"
+    },
+    "posthog": {
+      "enabled": false,
+      "apiKey": "POSTHOG_API_KEY",
+      "host": "https://app.posthog.com"
+    }
+  }
+}
