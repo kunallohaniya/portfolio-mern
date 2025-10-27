@@ -8,11 +8,17 @@ const generateToken = (userId) => {
   });
 };
 
-// Verify JWT token middleware
+// Verify JWT token middleware - supports both cookie and header tokens
 const authenticateToken = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    // Try to get token from cookies first (HTTP-only)
+    let token = req.cookies?.token;
+    
+    // Fallback to Authorization header for flexibility
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    }
 
     if (!token) {
       return res.status(401).json({
@@ -89,9 +95,29 @@ const optionalAuth = async (req, res, next) => {
   }
 };
 
+// Set auth cookie helper
+const setAuthCookie = (res, token) => {
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  });
+};
+
+// Clear auth cookie helper
+const clearAuthCookie = (res) => {
+  res.cookie('token', '', {
+    httpOnly: true,
+    expires: new Date(0)
+  });
+};
+
 module.exports = {
   generateToken,
   authenticateToken,
   requireAdmin,
-  optionalAuth
+  optionalAuth,
+  setAuthCookie,
+  clearAuthCookie
 };

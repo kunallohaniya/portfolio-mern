@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
-const { generateToken } = require('../middleware/authMiddleware');
+const { generateToken, setAuthCookie, clearAuthCookie } = require('../middleware/authMiddleware');
 const { asyncHandler } = require('../middleware/errorMiddleware');
 
 // @desc    Register a new admin user
@@ -43,13 +43,15 @@ const registerAdmin = asyncHandler(async (req, res) => {
 
   // Generate token
   const token = generateToken(user._id);
+  
+  // Set HTTP-only cookie
+  setAuthCookie(res, token);
 
   res.status(201).json({
     success: true,
     message: 'Admin user created successfully',
     data: {
-      user: user.toJSON(),
-      token
+      user: user.toJSON()
     }
   });
 });
@@ -102,13 +104,15 @@ const loginUser = asyncHandler(async (req, res) => {
 
   // Generate token
   const token = generateToken(user._id);
+  
+  // Set HTTP-only cookie
+  setAuthCookie(res, token);
 
   res.status(200).json({
     success: true,
     message: 'Login successful',
     data: {
-      user: user.toJSON(),
-      token
+      user: user.toJSON()
     }
   });
 });
