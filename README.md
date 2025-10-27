@@ -1,130 +1,268 @@
-# MERN Portfolio - Secure, Dynamic, and Stunning
+# MERN Portfolio - Secure, Dynamic, and Stunning 🚀
 
-A full-featured portfolio built with the MERN stack (MongoDB, Express, React, Node.js) featuring admin panel, dynamic projects, multilingual support, and modern UI/UX.
+A full-featured, production-ready portfolio built with the MERN stack (MongoDB, Express, React, Node.js) featuring admin panel, dynamic projects, multilingual support (English/Hindi), Google reCAPTCHA v3 security, and modern UI/UX with Royal Purple + Gold branding.
 
-## 🌟 Features
+## ✨ Key Features
 
 ### Frontend
-- React 18 + Vite for fast development
-- Tailwind CSS for responsive styling
-- Framer Motion for smooth animations
-- React Router DOM for navigation
-- Axios for API calls
-- React Hook Form & Yup for form validation
-- Toastify for notifications
-- EmailJS + Google reCAPTCHA v3 for contact form
-- Bhashini API for English ↔ Hindi translation
-- Lucide React icons
-- Theme modes: Light / Dark / High Contrast
+- ⚡ **React 18 + Vite** - Lightning-fast development and build
+- 🎨 **Tailwind CSS** - Custom Royal Purple (#4A00E0) + Gold (#FFD700) theme
+- 🌊 **Framer Motion** - Smooth, professional animations
+- 🌐 **Multilingual** - English ↔ Hindi with i18n support (Bhashini ready)
+- 🎭 **Theme Modes** - Light / Dark / High Contrast
+- 🔒 **reCAPTCHA v3** - Bot protection on forms
+- 📱 **Fully Responsive** - Mobile-first design
+- ♿ **Accessible** - WCAG compliant
+- 🚀 **SEO Optimized** - react-helmet-async, meta tags, structured data
 
 ### Backend
-- Node.js + Express server
-- MongoDB with Mongoose ODM
-- JWT authentication with bcrypt password hashing
-- Protected routes with role-based access control
-- Helmet, CORS, and rate limiting for security
-- Google reCAPTCHA v3 verification
-- MongoDB Atlas integration
-- Email notifications with Nodemailer
+- 🛡️ **Security First** - Helmet, CORS, rate limiting, input sanitization
+- 🔐 **JWT Auth** - HTTP-only cookies for secure sessions
+- 🗄️ **MongoDB + Mongoose** - Robust data modeling
+- 📧 **Email Integration** - Nodemailer for notifications
+- ✅ **Input Validation** - express-validator on all routes
+- 🤖 **reCAPTCHA Server Verification** - Double-layer security
+- 📊 **Request Logging** - Comprehensive logging utility
+- 🌐 **Auto Sitemap** - `/sitemap.xml` endpoint for SEO
 
 ### Portfolio Sections
-1. **Home/Hero** - Animated introduction
-2. **About Me** - Professional summary with resume
-3. **Projects** - Dynamic projects from MongoDB
-4. **Skills** - Technical skills showcase
-5. **Contact** - Secure contact form with reCAPTCHA
-6. **Admin Panel** - Secure login with CRUD operations
+1. **Hero** - Animated introduction with gradient backgrounds
+2. **About Me** - Professional summary with downloadable CV
+3. **Skills** - Tech stack showcase with categorization
+4. **Projects** - Dynamic projects from MongoDB with filtering
+5. **Achievements** - Highlights and milestones
+6. **Contact** - Secure form with reCAPTCHA and email notifications
+7. **Admin Panel** - Full CRUD operations for projects and contacts
 
-## 🚀 Getting Started
+## 🚀 Quick Start Guide
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- MongoDB (local or Atlas)
-- npm or yarn
+- **Node.js** v18+ (recommended v20)
+- **MongoDB** - Local installation OR MongoDB Atlas account
+- **npm** or **yarn**
+- *(Optional)* Google reCAPTCHA v3 keys from https://www.google.com/recaptcha/admin
+- *(Optional)* Email SMTP credentials (Gmail App Password recommended)
 
-### Environment Setup
+### 📦 Installation
 
-#### Backend (.env)
+1. **Clone and navigate to project:**
+   ```bash
+   git clone <your-repo-url>
+   cd portfolio-mern
+   ```
+
+2. **Install Backend Dependencies:**
+   ```bash
+   cd backend
+   npm install
+   ```
+
+3. **Install Frontend Dependencies:**
+   ```bash
+   cd ../frontend
+   npm install
+   ```
+
+### 🔧 Environment Configuration
+
+#### Backend Configuration (`backend/.env`)
+Create a `.env` file in the `backend/` directory using `.env.example` as template:
+
+```bash
+cd backend
+cp .env.example .env
+```
+
+**Required Variables:**
 ```env
 NODE_ENV=development
-PORT=5001
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_key
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/portfolio
+# For MongoDB Atlas: mongodb+srv://<username>:<password>@cluster.mongodb.net/portfolio
+
+JWT_SECRET=your_super_secret_jwt_key_change_this_in_production_min_32_chars
 JWT_EXPIRE=7d
 FRONTEND_URL=http://localhost:5173
+```
 
-# Email configuration (optional)
+**Optional (but recommended) Variables:**
+```env
+# Email Configuration (for contact form notifications)
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
+EMAIL_PASS=your_16_char_app_specific_password
 
-# Rate limiting
+# Google reCAPTCHA v3 (get keys from https://www.google.com/recaptcha/admin)
+RECAPTCHA_SECRET_KEY=your_recaptcha_secret_key
+
+# Rate Limiting
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100
 
-# reCAPTCHA v3
-RECAPTCHA_SECRET_KEY=your_recaptcha_secret_key
-RECAPTCHA_SITE_KEY=your_recaptcha_site_key
+# Admin Seed Credentials (only used by npm run seed)
+ADMIN_EMAIL=admin@portfolio.com
+ADMIN_PASSWORD=Admin@123456
+ADMIN_USERNAME=admin
 ```
 
-#### Frontend (.env.local)
-```env
-VITE_API_URL=http://localhost:5001/api
-VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
-VITE_EMAILJS_SERVICE_ID=your_emailjs_service_id
-VITE_EMAILJS_TEMPLATE_ID=your_emailjs_template_id
-VITE_EMAILJS_PUBLIC_KEY=your_emailjs_public_key
-```
+#### Frontend Configuration (`frontend/.env.local`)
+Create a `.env.local` file in the `frontend/` directory:
 
-### Installation
-
-1. **Clone the repository:**
-```bash
-git clone <repository-url>
-cd portfolio-mern
-```
-
-2. **Install backend dependencies:**
-```bash
-cd backend
-npm install
-```
-
-3. **Install frontend dependencies:**
 ```bash
 cd ../frontend
-npm install
+cp .env.local.example .env.local
 ```
 
-4. **Install root dependencies:**
+**Configuration:**
+```env
+VITE_API_URL=http://localhost:5000/api
+VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
+VITE_APP_NAME=Portfolio
+VITE_APP_VERSION=1.0.0
+```
+
+**Optional:**
+```env
+# Bhashini API for advanced Hindi translation
+VITE_BHASHINI_KEY=your_bhashini_api_key
+VITE_BHASHINI_USER_ID=your_user_id
+```
+
+### 🗄️ Database Setup & Seeding
+
+**Option 1: Use Seed Script (Recommended for Development)**
 ```bash
-cd ..
-npm install
+cd backend
+npm run seed
 ```
+This creates:
+- ✅ Admin user (email: `admin@portfolio.com`, password: `Admin@123456`)
+- ✅ 6 sample projects
 
-### Running the Application
+**Option 2: Manual Setup**
+- Start MongoDB locally or use MongoDB Atlas
+- Admin user can be created via `/api/auth/register` endpoint
 
-#### Development Mode
-```bash
-# Run both frontend and backend concurrently
-npm run dev
+### ▶️ Running the Application
 
-# Run frontend only
-npm run dev:frontend
+**Development Mode (Recommended):**
 
-# Run backend only
-npm run dev:backend
-```
+1. **Start Backend Server:**
+   ```bash
+   cd backend
+   npm run dev
+   ```
+   Backend will run on `http://localhost:5000`
 
-#### Production Mode
+2. **Start Frontend Dev Server (in new terminal):**
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+   Frontend will run on `http://localhost:5173`
+
+**Production Mode:**
 ```bash
 # Build frontend
+cd frontend
 npm run build
 
 # Start backend server
+cd ../backend
 npm start
 ```
+
+### ✅ Manual Testing & Verification
+
+After starting both servers, verify the following:
+
+#### 1. **Frontend Loads Without Errors**
+- Open http://localhost:5173
+- Check browser console (F12) - should have no errors
+- Verify theme toggle works (Light/Dark/High Contrast)
+- Verify language toggle works (EN ↔ हि)
+
+#### 2. **Admin Login**
+- Navigate to http://localhost:5173/admin/login
+- **Credentials:**
+  - Email: `admin@portfolio.com`
+  - Password: `Admin@123456`
+- Should redirect to `/admin/dashboard` on success
+
+#### 3. **Admin Dashboard - CRUD Operations**
+**Create Project:**
+- Click "Add New Project"
+- Fill in form:
+  - Title: `Test Project`
+  - Description: `This is a test project for verification`
+  - Tech Stack: `React, Node.js, MongoDB`
+  - Image URL: `https://via.placeholder.com/400x200`
+  - Live Link: `https://example.com`
+  - GitHub Link: `https://github.com/example/repo`
+  - Featured: ✅
+  - Status: `published`
+- Click "Save"
+- Verify success toast appears
+
+**Edit Project:**
+- Click "Edit" on a project
+- Modify the title or description
+- Click "Save"
+- Verify changes appear
+
+**Delete Project:**
+- Click "Delete" on a project
+- Confirm deletion
+- Verify project is removed from list
+
+#### 4. **Projects Page**
+- Navigate to home page (http://localhost:5173)
+- Scroll to "Projects" section
+- Verify projects are fetched from backend and display correctly
+- Check that newly created project appears
+- Verify tech stack filters work
+
+#### 5. **Contact Form**
+- Scroll to "Contact" section
+- Fill in form:
+  - Name: `Test User`
+  - Email: `test@example.com`
+  - Subject: `Test Message`
+  - Message: `This is a test contact form submission`
+- Click "Send Message"
+- Verify:
+  - Success toast appears
+  - If email configured: Check inbox for notification
+  - If no email: Check backend logs for contact entry
+
+#### 6. **API Endpoints (via Browser/Postman)**
+```bash
+# Health Check
+GET http://localhost:5000/health
+
+# Get Projects
+GET http://localhost:5000/api/projects
+
+# Get Featured Projects
+GET http://localhost:5000/api/projects/featured
+
+# Sitemap
+GET http://localhost:5000/sitemap.xml
+```
+
+### 🔐 Admin Seed Credentials
+
+**Default Admin User:**
+- **Email:** `admin@portfolio.com`
+- **Password:** `Admin@123456`
+- **Username:** `admin`
+
+**⚠️ IMPORTANT:** Change these credentials in production!
+
+To change admin password:
+1. Login to admin dashboard
+2. (Future feature) Or manually update in MongoDB
 
 ## 🛠️ Project Structure
 
@@ -165,18 +303,26 @@ portfolio-mern/
 - MongoDB injection prevention
 - XSS protection
 
-## 🎨 Custom Branding
+## 🎨 Custom Branding & Design System
 
+### Color Palette
 - **Primary:** `#4A00E0` (Royal Electric Purple)
 - **Secondary:** `#8E2DE2` (Gradient Violet)
 - **Accent:** `#FFD700` (Gold)
-- **Light BG:** `#FFFFFF`
-- **Dark BG:** `#0A0A0A`
-- **High Contrast:** Black + Yellow text
-- Fonts: "Poppins" + "Inter"
-- Buttons: Gradient (purple → violet) with gold hover outline
-- Animations: Smooth fade, parallax scroll, hover scale
-- Glassmorphism cards for projects & services
+- **Background Light:** `#FFFFFF`
+- **Background Dark:** `#0A0A0A`
+
+### Typography
+- **Display Font:** Poppins (headings, hero text)
+- **Body Font:** Inter (paragraphs, UI elements)
+- **Monospace:** JetBrains Mono (code blocks)
+
+### Design Elements
+- **Buttons:** Gradient background (#4A00E0 → #8E2DE2) with gold hover glow
+- **Cards:** Glassmorphism effect with backdrop blur
+- **Animations:** Framer Motion (fade-in, slide-up, scale, hover effects)
+- **Shadows:** Purple glow effect on interactive elements
+- **Gradients:** Linear gradients for hero sections and CTAs
 
 ## 📱 Responsive Design
 

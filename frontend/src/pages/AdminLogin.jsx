@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaUser, FaLock, FaSignInAlt, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
-import { authAPI } from '../utils/api';
+import { api } from '../utils/api';
+import { initAndExecuteRecaptcha } from '../utils/recaptcha';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -26,11 +27,21 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      const response = await authAPI.login(credentials);
+      // Get reCAPTCHA token
+      let recaptchaToken = null;
+      try {
+        recaptchaToken = await initAndExecuteRecaptcha('login');
+      } catch (recaptchaError) {
+        console.warn('reCAPTCHA not configured or failed:', recaptchaError);
+        // Continue without reCAPTCHA if not configured
+      }
+
+      const response = await api.post('/auth/login', {
+        ...credentials,
+        ...(recaptchaToken && { recaptchaToken })
+      });
       
       if (response.data.success) {
-        // Store token in localStorage
-        localStorage.setItem('token', response.data.data.token);
         toast.success('Login successful!');
         navigate('/admin/dashboard');
       }

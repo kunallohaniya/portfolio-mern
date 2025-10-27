@@ -8,17 +8,19 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Custom Royal Purple + Gold Branding
         primary: {
-          50: '#f0ebfb',
-          100: '#e1d7f7',
-          200: '#c3b0ef',
-          300: '#a588e7',
-          400: '#8761df',
-          500: '#6A3AD7', // Primary color
-          600: '#552eac',
-          700: '#402381',
-          800: '#2a1756',
-          900: '#150c2b',
+          50: '#f3e5ff',
+          100: '#e0c2ff',
+          200: '#c899ff',
+          300: '#af70ff',
+          400: '#9747ff',
+          500: '#4A00E0', // Royal Electric Purple (Primary)
+          600: '#3d00b8',
+          700: '#300090',
+          800: '#230068',
+          900: '#16003f',
+          DEFAULT: '#4A00E0',
         },
         secondary: {
           50: '#f5ebfb',
@@ -26,41 +28,38 @@ export default {
           200: '#d7b0ef',
           300: '#c388e7',
           400: '#af61df',
-          500: '#8E2DE2', // Secondary color
+          500: '#8E2DE2', // Gradient Violet (Secondary)
           600: '#7224b5',
           700: '#561a88',
           800: '#3a115c',
           900: '#1e092f',
+          DEFAULT: '#8E2DE2',
         },
         accent: {
-          50: '#fffdf0',
-          100: '#fffbe6',
-          200: '#fff7cc',
-          300: '#fff3b3',
+          50: '#fffef5',
+          100: '#fffce6',
+          200: '#fff8cc',
+          300: '#fff4b3',
           400: '#ffef99',
-          500: '#FFD700', // Accent color
-          600: '#cca800',
-          700: '#997e00',
-          800: '#665400',
-          900: '#332a00',
+          500: '#FFD700', // Gold (Accent)
+          600: '#ccac00',
+          700: '#998100',
+          800: '#665600',
+          900: '#332b00',
+          DEFAULT: '#FFD700',
         },
-        dark: {
-          50: '#f8f8f8',
-          100: '#f0f0f0',
-          200: '#e0e0e0',
-          300: '#d0d0d0',
-          400: '#b0b0b0',
-          500: '#909090',
-          600: '#707070',
-          700: '#505050',
-          800: '#303030',
-          900: '#101010',
-        }
+        // Custom theme colors
+        'royal-purple': '#4A00E0',
+        'violet-gradient': '#8E2DE2',
+        'gold': '#FFD700',
+        'light-bg': '#FFFFFF',
+        'dark-bg': '#0A0A0A',
       },
       fontFamily: {
-        'sans': ['Inter', 'system-ui', 'sans-serif'],
+        'sans': ['Poppins', 'Inter', 'system-ui', 'sans-serif'],
         'mono': ['JetBrains Mono', 'Fira Code', 'monospace'],
-        'display': ['Space Grotesk', 'Inter', 'sans-serif'],
+        'display': ['Poppins', 'Space Grotesk', 'sans-serif'],
+        'body': ['Inter', 'system-ui', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
@@ -131,9 +130,12 @@ export default {
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-        'mesh-gradient': 'linear-gradient(45deg, #667eea 0%, #764ba2 100%)',
-        'cyber-grid': 'linear-gradient(rgba(0,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,255,0.1) 1px, transparent 1px)',
-        'gradient-premium': 'linear-gradient(135deg, #6A3AD7 0%, #8E2DE2 100%)',
+        'gradient-primary': 'linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%)',
+        'gradient-premium': 'linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%)',
+        'gradient-gold': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+        'gradient-purple-gold': 'linear-gradient(135deg, #4A00E0 0%, #8E2DE2 50%, #FFD700 100%)',
+        'mesh-gradient': 'linear-gradient(45deg, #4A00E0 0%, #8E2DE2 100%)',
+        'cyber-grid': 'linear-gradient(rgba(74,0,224,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(74,0,224,0.1) 1px, transparent 1px)',
       },
       backgroundSize: {
         'mesh': '400% 400%',
@@ -143,10 +145,13 @@ export default {
         xs: '2px',
       },
       boxShadow: {
-        'glow': '0 0 20px rgba(106, 58, 215, 0.5)',
-        'glow-lg': '0 0 40px rgba(106, 58, 215, 0.6)',
-        'inner-glow': 'inset 0 0 20px rgba(106, 58, 215, 0.3)',
-        'cyber': '0 0 20px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.1)',
+        'glow': '0 0 20px rgba(74, 0, 224, 0.5)',
+        'glow-lg': '0 0 40px rgba(74, 0, 224, 0.6)',
+        'glow-gold': '0 0 20px rgba(255, 215, 0, 0.5)',
+        'inner-glow': 'inset 0 0 20px rgba(74, 0, 224, 0.3)',
+        'purple-glow': '0 0 30px rgba(74, 0, 224, 0.4), 0 0 60px rgba(142, 45, 226, 0.3)',
+        'gold-glow': '0 0 20px rgba(255, 215, 0, 0.6)',
+        'cyber': '0 0 20px rgba(74, 0, 224, 0.5), inset 0 0 20px rgba(74, 0, 224, 0.1)',
       },
       screens: {
         'xs': '475px',

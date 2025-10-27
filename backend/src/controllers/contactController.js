@@ -1,25 +1,9 @@
 const Contact = require('../models/Contact');
 const { validationResult } = require('express-validator');
-const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
 const { verifyRecaptcha } = require('../middleware/recaptchaMiddleware');
 const { asyncHandler } = require('../middleware/errorMiddleware');
-
-// Create transporter for email (optional)
-const createTransporter = () => {
-  if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-    return nodemailer.createTransporter({
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-  }
-  return null;
-};
+const { sendContactNotification } = require('../utils/mailer');
 
 // @desc    Submit contact form
 // @route   POST /api/contact
@@ -76,29 +60,12 @@ const submitContact = asyncHandler(async (req, res) => {
 
   await contact.save();
 
-  // Send email notification (optional)
-  const transporter = createTransporter();
-  if (transporter) {
-    try {
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_USER, // Send to yourself
-        subject: `New Contact Form Submission: ${subject}`,
-        html: `
-          <h2>New Contact Form Submission</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Subject:</strong> ${subject}</p>
-          <p><strong>Message:</strong></p>
-          <p>${message.replace(/\n/g, '<br>')}</p>
-          <hr>
-          <p><em>Submitted on: ${new Date().toLocaleString()}</em></p>
-        `
-      });
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
-      // Don't fail the request if email fails
-    }
+  // Send email notification (optional - won't fail if email not configured)
+  try {
+    await sendContactNotification({ name, email, subject, message });
+  } catch (emailError) {
+    console.error('Email sending failed:', emailError);
+    // Don't fail the request if email fails
   }
 
   res.status(201).json({

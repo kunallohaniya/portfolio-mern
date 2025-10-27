@@ -205,10 +205,24 @@ const changePassword = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Logout user
+// @route   POST /api/auth/logout
+// @access  Private
+const logoutUser = asyncHandler(async (req, res) => {
+  // Clear the HTTP-only cookie
+  clearAuthCookie(res);
+
+  res.status(200).json({
+    success: true,
+    message: 'Logged out successfully'
+  });
+});
+
 module.exports = {
   registerAdmin,
   loginUser,
   getCurrentUser,
   updateProfile,
-  changePassword
+  changePassword,
+  logoutUser
 };

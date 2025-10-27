@@ -5,17 +5,14 @@ import { HelmetProvider } from 'react-helmet-async';
 
 // Components
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import About from './components/About';
-import Skills from './components/Skills';
-import Projects from './components/Projects';
-import Achievements from './components/Achievements';
-import Contact from './components/Contact';
 import Footer from './components/Footer';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 
-// Admin Pages
+// Pages
+import Home from './pages/Home';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import NotFound from './pages/NotFound';
 
 // Styles
 import './index.css';
@@ -24,19 +21,14 @@ function App() {
   return (
     <HelmetProvider>
       <Router>
-        <div className="App">
+        <div className="App min-h-screen bg-white dark:bg-gray-900 transition-colors">
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={
               <>
                 <Navbar />
                 <main>
-                  <Hero />
-                  <About />
-                  <Skills />
-                  <Projects />
-                  <Achievements />
-                  <Contact />
+                  <Home />
                 </main>
                 <Footer />
               </>
@@ -44,21 +36,31 @@ function App() {
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/dashboard" element={
+              <AdminProtectedRoute>
+                <AdminDashboard />
+              </AdminProtectedRoute>
+            } />
+            
+            {/* 404 Not Found */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
           
+          {/* Toast Notifications */}
           <Toaster 
             position="top-right"
             toastOptions={{
               duration: 4000,
+              className: '',
               style: {
-                background: '#363636',
-                color: '#fff',
+                background: 'var(--toast-bg)',
+                color: 'var(--toast-color)',
+                border: '1px solid var(--toast-border)',
               },
               success: {
                 duration: 3000,
                 iconTheme: {
-                  primary: '#4ade80',
+                  primary: '#4A00E0',
                   secondary: '#fff',
                 },
               },

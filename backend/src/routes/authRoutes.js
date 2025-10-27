@@ -5,9 +5,11 @@ const {
   loginUser,
   getCurrentUser,
   updateProfile,
-  changePassword
+  changePassword,
+  logoutUser
 } = require('../controllers/authController');
 const { authenticateToken } = require('../middleware/authMiddleware');
+const { verifyRecaptcha } = require('../middleware/recaptchaMiddleware');
 
 const router = express.Router();
 
@@ -69,12 +71,14 @@ const changePasswordValidation = [
 // @route   POST /api/auth/register
 // @desc    Register a new admin user
 // @access  Private (setup only)
+// Note: reCAPTCHA optional for register (can enable if needed)
 router.post('/register', registerValidation, registerAdmin);
 
 // @route   POST /api/auth/login
 // @desc    Login user
 // @access  Public
-router.post('/login', loginValidation, loginUser);
+// Note: reCAPTCHA verification enabled for login (comment out verifyRecaptcha if you don't have keys yet)
+router.post('/login', loginValidation, verifyRecaptcha, loginUser);
 
 // @route   GET /api/auth/me
 // @desc    Get current user profile
@@ -90,5 +94,10 @@ router.put('/profile', authenticateToken, updateProfileValidation, updateProfile
 // @desc    Change password
 // @access  Private
 router.put('/change-password', authenticateToken, changePasswordValidation, changePassword);
+
+// @route   POST /api/auth/logout
+// @desc    Logout user
+// @access  Private
+router.post('/logout', authenticateToken, logoutUser);
 
 module.exports = router;
