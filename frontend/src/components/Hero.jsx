@@ -1,92 +1,46 @@
-import React, { useRef, useEffect, Suspense, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Sphere, MeshDistortMaterial, OrbitControls, Float, Environment, Stars } from '@react-three/drei';
 import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaDownload, FaArrowDown, FaCode, FaRocket, FaLightbulb } from 'react-icons/fa';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { ANIMATION_VARIANTS } from '../utils/constants';
 
-// Premium 3D Animated Sphere Component
-const AnimatedSphere = React.memo(() => {
-  const meshRef = useRef();
-  const [hovered, setHovered] = useState(false);
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x = state.clock.elapsedTime * 0.1;
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.2;
-      meshRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.5;
-      
-      if (hovered) {
-        meshRef.current.scale.setScalar(1.15);
-      } else {
-        meshRef.current.scale.setScalar(1);
-      }
-    }
-  });
-
+// Premium Animated Gradient Background
+const AnimatedBackground = React.memo(() => {
   return (
-    <Float speed={2} rotationIntensity={1} floatIntensity={2}>
-      <Sphere 
-        ref={meshRef} 
-        args={[1, 100, 200]} 
-        scale={2.4}
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}
-      >
-        <MeshDistortMaterial
-          color={hovered ? "#8b5cf6" : "#3b82f6"}
-          attach="material"
-          distort={0.3}
-          speed={1.5}
-          roughness={0}
-          metalness={0.5}
-          transparent
-          opacity={0.8}
-        />
-      </Sphere>
-    </Float>
+    <div className="absolute inset-0 overflow-hidden">
+      <motion.div
+        className="absolute w-96 h-96 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full filter blur-3xl opacity-30"
+        animate={{
+          x: [0, 100, 0],
+          y: [0, -100, 0],
+          scale: [1, 1.2, 1],
+        }}
+        transition={{
+          duration: 20,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+        style={{ top: '10%', right: '10%' }}
+      />
+      <motion.div
+        className="absolute w-96 h-96 bg-gradient-to-r from-accent-500 to-primary-500 rounded-full filter blur-3xl opacity-20"
+        animate={{
+          x: [0, -100, 0],
+          y: [0, 100, 0],
+          scale: [1.2, 1, 1.2],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+        style={{ bottom: '10%', left: '10%' }}
+      />
+    </div>
   );
 });
 
-AnimatedSphere.displayName = 'AnimatedSphere';
-
-// Premium Floating Particles Component
-const FloatingParticles = React.memo(() => {
-  const particlesRef = useRef();
-  const particleCount = 40;
-
-  useFrame((state) => {
-    if (particlesRef.current) {
-      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.05;
-      particlesRef.current.children.forEach((particle, index) => {
-        particle.position.y = Math.sin(state.clock.elapsedTime + index) * 0.5;
-        particle.position.x = Math.cos(state.clock.elapsedTime + index) * 0.3;
-      });
-    }
-  });
-
-  return (
-    <group ref={particlesRef}>
-      {Array.from({ length: particleCount }).map((_, i) => (
-        <Float key={i} speed={1 + Math.random()} rotationIntensity={0.5} floatIntensity={1}>
-          <mesh
-            position={[
-              (Math.random() - 0.5) * 20,
-              (Math.random() - 0.5) * 20,
-              (Math.random() - 0.5) * 20,
-            ]}
-          >
-            <sphereGeometry args={[0.02, 8, 8]} />
-            <meshBasicMaterial color="#8b5cf6" transparent opacity={0.6} />
-          </mesh>
-        </Float>
-      ))}
-    </group>
-  );
-});
-
-FloatingParticles.displayName = 'FloatingParticles';
+AnimatedBackground.displayName = 'AnimatedBackground';
 
 // Premium Typewriter Effect Component
 const TypewriterText = React.memo(({ texts, speed = 100 }) => {
@@ -193,17 +147,6 @@ const CursorGlow = React.memo(() => {
 
 CursorGlow.displayName = 'CursorGlow';
 
-// Loading fallback for 3D scene
-const SceneFallback = () => (
-  <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-transparent to-secondary-50 dark:from-dark-900 dark:via-transparent dark:to-dark-800 flex items-center justify-center">
-    <motion.div
-      animate={{ rotate: 360 }}
-      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-      className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full"
-    />
-  </div>
-);
-
 const Hero = () => {
   const { getPersonalInfo, getSocialLinks } = usePortfolioData();
   const personalInfo = getPersonalInfo();
@@ -232,20 +175,9 @@ const Hero = () => {
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Premium 3D Background */}
+      {/* Premium Animated Background */}
       <div className="absolute inset-0 z-0">
-        <Suspense fallback={<SceneFallback />}>
-          <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} />
-            <directionalLight position={[0, 10, 5]} intensity={1} />
-            <Environment preset="night" />
-            <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-            <AnimatedSphere />
-            <FloatingParticles />
-            <OrbitControls enableZoom={false} enablePan={false} enableRotate={true} />
-          </Canvas>
-        </Suspense>
+        <AnimatedBackground />
       </div>
 
       {/* Premium Gradient Overlays */}

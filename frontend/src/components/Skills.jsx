@@ -1,77 +1,41 @@
-import React, { useState, useRef, useEffect, Suspense } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Sphere, Float, OrbitControls, Text3D, Center } from '@react-three/drei';
 import { FaCode, FaServer, FaTools, FaChartLine, FaRocket, FaStar, FaHeart } from 'react-icons/fa';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { ANIMATION_VARIANTS } from '../utils/constants';
 
-// Premium 3D Skill Orbit Component
-const SkillOrbit = React.memo(() => {
-  const orbitRef = useRef();
-  const [hoveredSkill, setHoveredSkill] = useState(null);
-
+// Simplified Skills Display (No 3D)
+const SkillsDisplay = React.memo(() => {
   const skills = [
-    { name: 'React', color: '#61DAFB', position: [3, 0, 0] },
-    { name: 'Node.js', color: '#68A063', position: [0, 3, 0] },
-    { name: 'MongoDB', color: '#47A248', position: [-3, 0, 0] },
-    { name: 'JavaScript', color: '#F7DF1E', position: [0, -3, 0] },
-    { name: 'Python', color: '#3776AB', position: [2.1, 2.1, 0] },
-    { name: 'TypeScript', color: '#3178C6', position: [-2.1, 2.1, 0] },
-    { name: 'CSS3', color: '#1572B6', position: [-2.1, -2.1, 0] },
-    { name: 'Express', color: '#000000', position: [2.1, -2.1, 0] },
+    { name: 'React', color: '#61DAFB' },
+    { name: 'Node.js', color: '#68A063' },
+    { name: 'MongoDB', color: '#47A248' },
+    { name: 'JavaScript', color: '#F7DF1E' },
+    { name: 'Python', color: '#3776AB' },
+    { name: 'TypeScript', color: '#3178C6' },
+    { name: 'CSS3', color: '#1572B6' },
+    { name: 'Express', color: '#000000' },
   ];
 
-  useFrame((state) => {
-    if (orbitRef.current) {
-      orbitRef.current.rotation.y = state.clock.elapsedTime * 0.2;
-      orbitRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.1;
-    }
-  });
-
   return (
-    <group ref={orbitRef}>
-      {/* Central Sphere */}
-      <Sphere args={[0.5, 32, 32]} position={[0, 0, 0]}>
-        <meshStandardMaterial color="#3b82f6" metalness={0.8} roughness={0.2} />
-      </Sphere>
-      
-      {/* Orbiting Skills */}
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-8">
       {skills.map((skill, index) => (
-        <Float key={skill.name} speed={1 + index * 0.1} rotationIntensity={0.5} floatIntensity={0.5}>
-          <Sphere
-            args={[0.2, 16, 16]}
-            position={skill.position}
-            onPointerOver={() => setHoveredSkill(skill.name)}
-            onPointerOut={() => setHoveredSkill(null)}
-          >
-            <meshStandardMaterial 
-              color={skill.color} 
-              metalness={0.6} 
-              roughness={0.3}
-              emissive={hoveredSkill === skill.name ? skill.color : '#000000'}
-              emissiveIntensity={hoveredSkill === skill.name ? 0.3 : 0}
-            />
-          </Sphere>
-          
-          {/* Skill Labels */}
-          <Center position={[skill.position[0] * 1.5, skill.position[1] * 1.5, skill.position[2] * 1.5]}>
-            <Text3D
-              font="/fonts/helvetiker_regular.typeface.json"
-              size={0.1}
-              height={0.02}
-              color={hoveredSkill === skill.name ? skill.color : '#ffffff'}
-            >
-              {skill.name}
-            </Text3D>
-          </Center>
-        </Float>
+        <motion.div
+          key={skill.name}
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ delay: index * 0.1 }}
+          className="p-4 rounded-lg bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow"
+          style={{ borderLeft: `4px solid ${skill.color}` }}
+        >
+          <p className="font-semibold text-center">{skill.name}</p>
+        </motion.div>
       ))}
-    </group>
+    </div>
   );
 });
 
-SkillOrbit.displayName = 'SkillOrbit';
+SkillsDisplay.displayName = 'SkillsDisplay';
 
 // Premium Skill Bubble Component
 const SkillBubble = React.memo(({ skill, index, isActive }) => {
@@ -248,25 +212,8 @@ const SkillsOverview = React.memo(() => {
       </div>
 
       {/* 3D Skills Orbit */}
-      <div className="h-96 mb-12">
-        <Suspense fallback={
-          <div className="h-full flex items-center justify-center">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full"
-            />
-          </div>
-        }>
-          <Canvas camera={{ position: [0, 0, 8], fov: 75 }}>
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} />
-            <directionalLight position={[0, 10, 5]} intensity={1} />
-            <SkillOrbit />
-            <OrbitControls enableZoom={false} enablePan={false} enableRotate={true} />
-          </Canvas>
-        </Suspense>
-      </div>
+      {/* Simplified Skills Display */}
+      <SkillsDisplay />
 
       {/* Skill Bubbles Grid */}
       <div className="grid grid-cols-3 md:grid-cols-6 gap-8 mb-12">
@@ -455,7 +402,11 @@ const Skills = () => {
               className={selectedCategory === category.key ? 'block' : 'hidden lg:block'}
             >
               <SkillCategory 
-                {...category} 
+                title={category.title}
+                icon={category.icon}
+                skills={category.skills}
+                color={category.color}
+                bgColor={category.bgColor}
                 isActive={selectedCategory === category.key}
               />
             </motion.div>

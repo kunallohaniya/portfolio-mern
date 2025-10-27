@@ -1,0 +1,12 @@
+{
+  "name": "Kunal Lohaniya - Portfolio",
+  "short_name": "KL Portfolio",
+  "description": "Full Stack Developer Portfolio - MERN Stack Specialist",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#4A00E0",
+  "theme_color": "#4A00E0",
+  "orientation": "portrait-primary",
+  "icons": []
+}
+

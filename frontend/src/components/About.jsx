@@ -220,12 +220,14 @@ const FunFacts = React.memo(({ facts }) => {
             animate={currentFact === index ? { scale: 1.05 } : { scale: 1 }}
           >
             <motion.span
-              className="w-3 h-3 bg-primary-500 rounded-full mr-4"
-              animate={currentFact === index ? { scale: 1.5 } : { scale: 1 }}
+              className="text-2xl mr-3"
+              animate={currentFact === index ? { scale: 1.2 } : { scale: 1 }}
               transition={{ duration: 0.3 }}
-            />
-            <span className="text-dark-600 dark:text-dark-300 text-sm">
-              {fact}
+            >
+              {fact.emoji}
+            </motion.span>
+            <span className="text-dark-600 dark:text-dark-300 text-sm flex-1">
+              <strong>{fact.text}:</strong> {fact.value}
             </span>
           </motion.div>
         ))}

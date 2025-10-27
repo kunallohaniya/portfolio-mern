@@ -156,6 +156,95 @@ export const usePortfolioData = () => {
     return data.contactForm || {};
   };
 
+  // Function to get navigation items
+  const getNavItems = () => {
+    return [
+      { id: 'home', label: 'Home' },
+      { id: 'about', label: 'About' },
+      { id: 'skills', label: 'Skills' },
+      { id: 'projects', label: 'Projects' },
+      { id: 'achievements', label: 'Achievements' },
+      { id: 'blog', label: 'Blog' },
+      { id: 'contact', label: 'Contact' }
+    ];
+  };
+
+  // Function to get skills data organized by category
+  const getSkillsData = () => {
+    return {
+      frontend: data.skills?.frontend || [],
+      backend: data.skills?.backend || [],
+      tools: data.skills?.tools || []
+    };
+  };
+
+  // Function to get contact data
+  const getContactData = () => {
+    return data.contact || {
+      email: data.personalInfo?.email || '',
+      phone: data.personalInfo?.phone || '',
+      location: data.personalInfo?.location || '',
+      availability: 'Available for freelance work'
+    };
+  };
+
+  // Function to get about data
+  const getAboutData = () => {
+    return {
+      subtitle: data.personalInfo?.tagline || 'Full Stack Developer',
+      description: [
+        data.personalInfo?.bio || 'Passionate developer building amazing web applications.',
+        data.personalInfo?.fullBio || 'With expertise in the MERN stack, I create modern, scalable, and user-friendly applications.'
+      ],
+      values: [
+        { icon: '💡', title: 'Innovation', description: 'Always exploring new technologies and creative solutions' },
+        { icon: '🎯', title: 'Quality', description: 'Committed to writing clean, maintainable code' },
+        { icon: '🤝', title: 'Collaboration', description: 'Thriving in team environments and open-source communities' },
+        { icon: '📚', title: 'Learning', description: 'Continuously improving skills and staying updated' }
+      ],
+      stats: [
+        { label: 'Years Experience', value: '3+', icon: '⏱️' },
+        { label: 'Projects Completed', value: '50+', icon: '🚀' },
+        { label: 'Technologies', value: '20+', icon: '⚡' },
+        { label: 'Happy Clients', value: '30+', icon: '😊' }
+      ],
+      funFacts: [
+        { emoji: '☕', text: 'Coffee consumed daily', value: '5+ cups' },
+        { emoji: '🎵', text: 'Coding playlist songs', value: '300+' },
+        { emoji: '🌙', text: 'Favorite coding time', value: 'Late night' },
+        { emoji: '🎮', text: 'Favorite hobby', value: 'Gaming' }
+      ],
+      bio: data.personalInfo?.bio || '',
+      fullBio: data.personalInfo?.fullBio || data.personalInfo?.bio || '',
+      experience: data.experience || [],
+      education: data.education || [],
+      interests: data.personalInfo?.interests || [],
+      languages: data.personalInfo?.languages || [],
+      certifications: data.certifications || []
+    };
+  };
+
+  // Function to get achievements data (returns array directly)
+  const getAchievementsData = () => {
+    // Return achievements array directly as component expects it
+    return data.achievements || [];
+  };
+
+  // Function to get projects data (returns array directly)
+  const getProjectsData = () => {
+    // Return projects array directly as component expects it
+    return data.projects || [];
+  };
+
+  // Function to get blog data
+  const getBlogData = () => {
+    return {
+      posts: data.blogPosts || [],
+      featured: data.blogPosts?.filter(p => p.featured) || [],
+      categories: [...new Set(data.blogPosts?.map(p => p.category) || [])]
+    };
+  };
+
   return {
     data,
     loading,
@@ -175,7 +264,14 @@ export const usePortfolioData = () => {
     getSEOData,
     getAnalyticsConfig,
     getTerminalCommands,
-    getContactFormConfig
+    getContactFormConfig,
+    getNavItems,
+    getSkillsData,
+    getContactData,
+    getAboutData,
+    getAchievementsData,
+    getProjectsData,
+    getBlogData
   };
 };
 

@@ -13,27 +13,12 @@ const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const fs = require('fs');
 
-// Load environment variables - try multiple approaches
+// Load environment variables
 const envPath = path.join(__dirname, '../.env');
-console.log('Looking for .env file at:', envPath);
-console.log('File exists:', fs.existsSync(envPath));
+dotenv.config({ path: envPath });
 
-// Method 1: Direct config with path
-const result = dotenv.config({ path: envPath });
-if (result.error) {
-  console.log('Dotenv error:', result.error);
-} else {
-  console.log('Dotenv loaded successfully');
-}
-
-console.log('Environment variables after dotenv:');
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('PORT:', process.env.PORT);
-console.log('MONGODB_URI:', process.env.MONGODB_URI);
-
-// Method 2: Manual parsing as fallback
-if (!process.env.NODE_ENV) {
-  console.log('Manual parsing .env file...');
+// Manual parsing as fallback
+if (!process.env.NODE_ENV && fs.existsSync(envPath)) {
   try {
     const envContent = fs.readFileSync(envPath, 'utf8');
     const lines = envContent.split('\n');
@@ -45,10 +30,8 @@ if (!process.env.NODE_ENV) {
         }
       }
     });
-    console.log('Manual parsing complete');
-    console.log('NODE_ENV after manual parsing:', process.env.NODE_ENV);
   } catch (err) {
-    console.log('Manual parsing error:', err);
+    console.error('Error loading .env file:', err.message);
   }
 }
 
@@ -98,6 +81,8 @@ const corsOptions = {
       process.env.FRONTEND_URL,
       'http://localhost:3000',
       'http://localhost:5173',
+      'http://localhost:5174',  // Current dev port
+      'http://localhost:5175',
       'https://your-portfolio.vercel.app', // Replace with your actual frontend URL
       'https://your-portfolio.netlify.app'  // Replace with your actual frontend URL
     ];
