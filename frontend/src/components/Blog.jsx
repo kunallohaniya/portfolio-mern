@@ -98,7 +98,7 @@ const BlogCard = ({ post, index }) => {
       {/* Blog Content */}
       <div className="p-6">
         {/* Meta Information */}
-        <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300 mb-4">
           <div className="flex items-center space-x-1">
             <FaCalendarAlt className="w-3 h-3" />
             <span>{new Date(post.date).toLocaleDateString()}</span>
@@ -119,7 +119,7 @@ const BlogCard = ({ post, index }) => {
         </motion.h3>
 
         {/* Excerpt */}
-        <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
+        <p className="text-gray-600 dark:text-gray-200 mb-4 line-clamp-3">
           {post.excerpt}
         </p>
 
@@ -128,7 +128,7 @@ const BlogCard = ({ post, index }) => {
           {post.tags.map((tag, tagIndex) => (
             <span
               key={tagIndex}
-              className="px-2 py-1 bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 text-xs rounded-full"
+              className="px-2 py-1 bg-gray-100 dark:bg-dark-600 text-gray-700 dark:text-gray-100 text-xs rounded-full"
             >
               {tag}
             </span>
@@ -177,7 +177,7 @@ const Blog = () => {
           <h2 className="heading-responsive font-bold gradient-text mb-6">
             Latest Articles
           </h2>
-          <p className="text-responsive text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          <p className="text-responsive text-gray-600 dark:text-gray-200 max-w-3xl mx-auto">
             Sharing insights, tutorials, and thoughts on modern web development, 
             MERN stack, and software engineering best practices.
           </p>
@@ -198,7 +198,7 @@ const Blog = () => {
               placeholder="Search articles..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-dark-700 border border-gray-200 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
+              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-dark-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
             />
           </div>
 
@@ -211,7 +211,7 @@ const Blog = () => {
                 className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
                   selectedTag === tag
                     ? 'bg-primary-600 text-white shadow-lg'
-                    : 'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20'
+                    : 'bg-white dark:bg-dark-600 text-gray-700 dark:text-gray-100 hover:bg-primary-50 dark:hover:bg-primary-900/20'
                 }`}
               >
                 {tag}
@@ -240,10 +240,10 @@ const Blog = () => {
             className="text-center py-12"
           >
             <div className="text-6xl mb-4">📝</div>
-            <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">
+            <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-200 mb-2">
               No articles found
             </h3>
-            <p className="text-gray-500 dark:text-gray-500">
+            <p className="text-gray-500 dark:text-gray-300">
               Try adjusting your search or filter criteria
             </p>
           </motion.div>

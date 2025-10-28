@@ -91,7 +91,7 @@ const ProjectCard = ({ project, index = 0 }) => {
         </h3>
 
         {/* Description */}
-        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-3">
+        <p className="text-gray-600 dark:text-gray-200 text-sm mb-4 line-clamp-3">
           {project.description}
         </p>
 
@@ -100,7 +100,7 @@ const ProjectCard = ({ project, index = 0 }) => {
           {project.techStack && project.techStack.map((tech, idx) => (
             <span
               key={idx}
-              className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full font-medium"
+              className="px-3 py-1 bg-gray-100 dark:bg-dark-600 text-gray-700 dark:text-gray-100 text-xs rounded-full font-medium"
             >
               {tech}
             </span>

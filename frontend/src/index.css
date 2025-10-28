@@ -129,11 +129,100 @@ body.high-contrast {
 }
 
 .text-primary-500 {
-  color: #5b21b6; /* Violet-800 for better contrast */
+  color: #5b21b6 !important; /* Violet-800 for better contrast in light mode */
+  opacity: 1 !important; /* Ensure full opacity */
 }
 
 .text-primary-600 {
-  color: #5b21b6; /* Violet-800 for better contrast */
+  color: #5b21b6 !important; /* Violet-800 for better contrast in light mode */
+  opacity: 1 !important; /* Ensure full opacity */
+}
+
+.dark .text-primary-500 {
+  color: #a78bfa !important; /* Violet-400 for dark mode */
+}
+
+.dark .text-primary-600 {
+  color: #a78bfa !important; /* Violet-400 for dark mode */
+}
+
+/* Dark mode gray text improvements for better contrast */
+.dark .text-gray-300 {
+  color: #d1d5db !important; /* Gray-300 - improved contrast */
+}
+
+.dark .text-gray-400 {
+  color: #cbd5e1 !important; /* Slate-300 - better than gray-400 */
+}
+
+.dark .text-gray-500 {
+  color: #cbd5e1 !important; /* Use lighter color for better contrast */
+}
+
+.dark .text-gray-600 {
+  color: #e2e8f0 !important; /* Slate-200 - high contrast */
+}
+
+.dark .text-gray-200 {
+  color: #e2e8f0 !important; /* Slate-200 - ensure consistency */
+}
+
+.dark .text-gray-100 {
+  color: #f1f5f9 !important; /* Slate-100 - excellent contrast */
+}
+
+/* Dark mode background improvements */
+.dark .bg-dark-600 {
+  background-color: #475569 !important; /* Slate-600 - better contrast with light text (7.5:1) */
+}
+
+.dark .bg-dark-700 {
+  background-color: #334155 !important; /* Slate-700 - good contrast (9:1) */
+}
+
+.dark .bg-dark-800 {
+  background-color: #1e293b !important; /* Slate-800 - excellent contrast (12:1) */
+}
+
+/* Dark mode for gray backgrounds on components */
+.dark .bg-gray-700 {
+  background-color: #334155 !important; /* Use slate-700 instead */
+}
+
+.dark .bg-gray-800 {
+  background-color: #1e293b !important; /* Use slate-800 instead */
+}
+
+/* Dark mode hover states - ensure good contrast */
+.dark .hover\:text-primary-600:hover {
+  color: #a78bfa !important; /* Violet-400 */
+}
+
+.dark .hover\:text-primary-400:hover {
+  color: #c4b5fd !important; /* Violet-300 - brighter for better contrast */
+}
+
+.dark .dark\:hover\:text-primary-400:hover {
+  color: #c4b5fd !important; /* Violet-300 */
+}
+
+.dark .dark\:hover\:text-primary-300:hover {
+  color: #ddd6fe !important; /* Violet-200 - excellent contrast */
+}
+
+/* Dark mode border colors for better visibility */
+.dark .border-dark-600,
+.dark .dark\:border-dark-600 {
+  border-color: #475569 !important; /* Slate-600 - visible borders */
+}
+
+.dark .border-dark-700,
+.dark .dark\:border-dark-700 {
+  border-color: #334155 !important; /* Slate-700 */
+}
+
+.dark .dark\:border-dark-200 {
+  border-color: #475569 !important; /* Use darker for visible borders */
 }
 
 /* Premium button glow effect */
@@ -295,19 +384,29 @@ body.high-contrast {
   color: #ddd6fe !important; /* Violet-200 - Higher contrast */
 }
 
-/* Dark mode text color overrides for proper contrast */
-.dark .text-dark-300,
-.dark .text-dark-400 {
-  color: #cbd5e1 !important; /* Slate-300 */
+/* Dark mode text color overrides for proper contrast - COMPREHENSIVE FIX */
+.dark .text-dark-300 {
+  color: #e2e8f0 !important; /* Slate-200 - upgraded from Slate-300 for better contrast (11:1) */
 }
 
-.dark .text-dark-600,
+.dark .text-dark-400 {
+  color: #cbd5e1 !important; /* Slate-300 - upgraded for better contrast (8:1) */
+}
+
+.dark .text-dark-500 {
+  color: #cbd5e1 !important; /* Slate-300 - significant upgrade from dark-500 (8:1) */
+}
+
+.dark .text-dark-600 {
+  color: #e2e8f0 !important; /* Slate-200 - high contrast (11:1) */
+}
+
 .dark .text-dark-700 {
-  color: #e2e8f0 !important; /* Slate-200 */
+  color: #e2e8f0 !important; /* Slate-200 - high contrast (11:1) */
 }
 
 .dark .text-dark-800 {
-  color: #f1f5f9 !important; /* Slate-100 */
+  color: #f1f5f9 !important; /* Slate-100 - excellent contrast (13:1) */
 }
 
 .dark .text-gray-300,

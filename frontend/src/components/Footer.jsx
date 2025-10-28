@@ -69,7 +69,7 @@ const Footer = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="space-y-6"
             >
-              <h4 className="text-lg font-semibold text-white mb-4 font-heading">
+              <h4 className="text-lg font-semibold text-dark-100 dark:text-white mb-4 font-heading">
                 Quick Links
               </h4>
               <div className="space-y-3">
@@ -99,7 +99,7 @@ const Footer = () => {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="space-y-6"
             >
-              <h4 className="text-lg font-semibold text-white mb-4 font-heading">
+              <h4 className="text-lg font-semibold text-dark-100 dark:text-white mb-4 font-heading">
                 Connect With Me
               </h4>
               <div className="flex space-x-4">

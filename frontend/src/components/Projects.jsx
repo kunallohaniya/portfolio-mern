@@ -54,7 +54,7 @@ const ProjectModal = ({ project, isOpen, onClose }) => {
                       {project.category}
                     </span>
                     {project.featured && (
-                      <span className="px-4 py-2 bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-300 text-sm font-medium rounded-full flex items-center gap-2">
+                      <span className="px-4 py-2 bg-primary-100 dark:bg-accent-900 text-primary-700 dark:text-accent-300 text-sm font-medium rounded-full flex items-center gap-2">
                         <FaStar className="w-3 h-3" />
                         Featured
                       </span>
@@ -250,7 +250,7 @@ const ProjectCard = ({ project, index }) => {
           {/* Premium Badge */}
           {project.featured && (
             <div className="absolute top-4 right-4">
-              <span className="px-3 py-1 bg-accent-500 text-white text-xs font-medium rounded-full flex items-center gap-1">
+              <span className="px-3 py-1 bg-primary-600 dark:bg-purple-600 text-white text-xs font-medium rounded-full flex items-center gap-1">
                 <FaStar className="w-3 h-3" />
                 Featured
               </span>

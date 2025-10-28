@@ -54,10 +54,13 @@ const SkillBubble = React.memo(({ skill, index, isActive }) => {
     >
       {/* Skill Bubble */}
       <motion.div
-        className={`w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold text-white shadow-xl transition-all duration-300 ${
+        className={`w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold shadow-xl transition-all duration-300 ${
           isActive ? 'scale-110 shadow-2xl' : ''
         }`}
-        style={{ backgroundColor: skill.color }}
+        style={{ 
+          backgroundColor: skill.color,
+          color: ['#F7DF1E', '#61DAFB', '#ffffff', '#FFD700'].includes(skill.color) ? '#1e293b' : '#ffffff'
+        }}
         animate={{
           scale: isHovered ? 1.2 : isActive ? 1.1 : 1,
           rotate: isHovered ? 360 : 0,

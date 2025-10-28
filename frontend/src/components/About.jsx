@@ -214,7 +214,7 @@ const FunFacts = React.memo(({ facts }) => {
             key={index}
             className={`flex items-center p-3 rounded-xl transition-all duration-500 ${
               currentFact === index
-                ? 'bg-primary-100 dark:bg-primary-900 scale-105'
+                ? 'bg-primary-100 dark:bg-primary-900/30 scale-105'
                 : 'bg-transparent'
             }`}
             animate={currentFact === index ? { scale: 1.05 } : { scale: 1 }}
