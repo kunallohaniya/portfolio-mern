@@ -103,6 +103,16 @@ body.high-contrast {
   color: #c4b5fd !important; /* Violet-300 - WCAG AAA compliant (9.8:1) */
 }
 
+/* Standard gradient-text class - same as premium for consistency */
+.gradient-text {
+  color: #5b21b6; /* Violet-800 - excellent contrast in light mode */
+  font-weight: 700;
+}
+
+.dark .gradient-text {
+  color: #c4b5fd !important; /* Violet-300 - WCAG AAA compliant (9.8:1) */
+}
+
 /* Light mode - ensure all text colors have proper contrast */
 .text-gray-600 {
   color: #475569; /* Slate-600 - 7.2:1 contrast on white */
@@ -184,7 +194,23 @@ body.high-contrast {
   background-color: #1e293b !important; /* Slate-800 - excellent contrast (12:1) */
 }
 
-/* Dark mode for gray backgrounds on components */
+/* Dark mode for gray and white backgrounds on components */
+.dark .bg-white {
+  background-color: #1e293b !important; /* Override white backgrounds in dark mode */
+}
+
+.dark .bg-gray-50 {
+  background-color: #1e293b !important; /* Override light backgrounds in dark mode */
+}
+
+.dark .bg-gray-100 {
+  background-color: #1e293b !important; /* Override light backgrounds in dark mode */
+}
+
+.dark .bg-gray-200 {
+  background-color: #334155 !important; /* Slightly lighter for differentiation */
+}
+
 .dark .bg-gray-700 {
   background-color: #334155 !important; /* Use slate-700 instead */
 }
@@ -208,6 +234,14 @@ body.high-contrast {
 
 .dark .dark\:hover\:text-primary-300:hover {
   color: #ddd6fe !important; /* Violet-200 - excellent contrast */
+}
+
+.dark .group:hover .group-hover\:text-primary-600 {
+  color: #a78bfa !important; /* Violet-400 */
+}
+
+.dark .group:hover .dark\:group-hover\:text-primary-400 {
+  color: #c4b5fd !important; /* Violet-300 - better visibility */
 }
 
 /* Dark mode border colors for better visibility */
@@ -257,6 +291,41 @@ body.high-contrast {
 .btn-glow:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(74, 0, 224, 0.4);
+}
+
+/* Premium primary button (standard) */
+.btn-primary {
+  background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);
+  color: white !important;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary span,
+.btn-primary svg {
+  color: white !important; /* Ensure all children inherit white */
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(74, 0, 224, 0.4);
+}
+
+.dark .btn-primary {
+  background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);
+  color: #ffffff !important; /* Force white text in dark mode */
+}
+
+.dark .btn-primary span {
+  color: #ffffff !important; /* Ensure span inherits white text */
+}
+
+.dark .btn-primary:hover {
+  box-shadow: 0 10px 25px rgba(142, 45, 226, 0.5);
 }
 
 /* Premium outline button */
@@ -311,6 +380,26 @@ body.high-contrast {
 /* Premium container */
 .container-premium {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Standard container (if used) */
+.container-custom {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Section padding */
+.section-padding {
+  @apply py-16 md:py-24;
+}
+
+/* Responsive heading */
+.heading-responsive {
+  @apply text-3xl md:text-4xl lg:text-5xl;
+}
+
+/* Responsive text */
+.text-responsive {
+  @apply text-base md:text-lg;
 }
 
 /* Premium heading styles */
