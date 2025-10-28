@@ -21,15 +21,9 @@
     "mongodb",
     "express"
   ],
-  "author": "Your Name",
+  "author": "Kunal Lohaniya",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.0.0"
-  },
-  "dependencies": {
-    "@emailjs/browser": "^4.4.1",
-    "framer-motion": "^12.23.24",
-    "hls.js": "^1.6.13",
-    "zustand": "^5.0.8"
   }
 }
