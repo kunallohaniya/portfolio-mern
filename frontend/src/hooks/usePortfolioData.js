@@ -203,16 +203,16 @@ export const usePortfolioData = () => {
         { icon: '📚', title: 'Learning', description: 'Continuously improving skills and staying updated' }
       ],
       stats: [
-        { label: 'Years Experience', value: '3+', icon: '⏱️' },
-        { label: 'Projects Completed', value: '50+', icon: '🚀' },
-        { label: 'Technologies', value: '20+', icon: '⚡' },
-        { label: 'Happy Clients', value: '30+', icon: '😊' }
+        { label: 'Years Experience', value: '1', icon: '⏱️' },
+        { label: 'Projects Completed', value: '10', icon: '🚀' },
+        { label: 'Technologies', value: '15', icon: '⚡' },
+        { label: 'Happy Clients', value: '10', icon: '😊' }
       ],
       funFacts: [
-        { emoji: '☕', text: 'Coffee consumed daily', value: '5+ cups' },
+        { emoji: '☕', text: 'Coffee consumed daily', value: '2+ cups' },
         { emoji: '🎵', text: 'Coding playlist songs', value: '300+' },
         { emoji: '🌙', text: 'Favorite coding time', value: 'Late night' },
-        { emoji: '🎮', text: 'Favorite hobby', value: 'Gaming' }
+        { emoji: '🎮', text: 'Favorite hobby', value: 'gaming' }
       ],
       bio: data.personalInfo?.bio || '',
       fullBio: data.personalInfo?.fullBio || data.personalInfo?.bio || '',

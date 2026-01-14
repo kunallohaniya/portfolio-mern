@@ -245,33 +245,26 @@ const About = () => {
   // Enhanced timeline data
   const timelineData = [
     {
-      title: "Computer Science Graduate",
-      period: "2020 - 2024",
-      description: "Completed Bachelor's degree in Computer Science with focus on software engineering and web development.",
-      icon: FaGraduationCap,
-      achievements: ["Dean's List", "3.8 GPA", "Senior Project"]
+      title: "Software Developer",
+      period: "2025 - present",
+      description: "Currently working as a full-stack developer, specializing in MERN stack development and creating scalable web applications.",
+      icon: FaCode,
+      achievements: ["MERN Stack", "React Native"]
     },
     {
-      title: "Frontend Developer Intern",
-      period: "2022 - 2023",
-      description: "Worked as a frontend developer intern, building responsive web applications using React and modern JavaScript.",
-      icon: FaCode,
+      title: "Master of Computer Applications",
+      period: "2024 - 2026",
+      description: "Completed Masters's degree in Computer applications with focus on software engineering and web development.",
+      icon: FaGraduationCap,
       achievements: ["React", "JavaScript", "CSS3"]
     },
     {
-      title: "Full Stack Developer",
-      period: "2023 - Present",
-      description: "Currently working as a full-stack developer, specializing in MERN stack development and creating scalable web applications.",
+      title: "Bachelor of Computer Applications",
+      period: "2021 - 2024",
+      description: "Graduated with a Bachelor's degree in Computer Applications, gaining a solid foundation in programming and software development.",
       icon: FaBriefcase,
       achievements: ["MERN Stack", "MongoDB", "Express.js"]
     },
-    {
-      title: "Open Source Contributor",
-      period: "2022 - Present",
-      description: "Active contributor to various open source projects, helping developers worldwide with code contributions and documentation.",
-      icon: FaGlobe,
-      achievements: ["GitHub", "Open Source", "Community"]
-    }
   ];
 
   return (
