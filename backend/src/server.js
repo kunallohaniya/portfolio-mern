@@ -77,6 +77,18 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
+    // In development, allow all localhost and local network IPs
+    if (process.env.NODE_ENV === 'development') {
+      // Allow localhost variants
+      if (origin.startsWith('http://localhost:') || 
+          origin.startsWith('http://127.0.0.1:') ||
+          origin.startsWith('http://192.168.') ||
+          origin.startsWith('http://10.') ||
+          origin.startsWith('http://172.')) {
+        return callback(null, true);
+      }
+    }
+    
     const allowedOrigins = [
       process.env.FRONTEND_URL,
       'http://localhost:3000',
@@ -90,6 +102,11 @@ const corsOptions = {
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      // In development, log the blocked origin for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`⚠️  CORS: Origin ${origin} not in allowed list, but allowing in dev mode`);
+        return callback(null, true);
+      }
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -198,7 +215,7 @@ app.use(notFound);
 // Error handler
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);

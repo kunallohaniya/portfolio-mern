@@ -9,7 +9,6 @@ const {
   logoutUser
 } = require('../controllers/authController');
 const { authenticateToken } = require('../middleware/authMiddleware');
-const { verifyRecaptcha } = require('../middleware/recaptchaMiddleware');
 
 const router = express.Router();
 
@@ -78,7 +77,7 @@ router.post('/register', registerValidation, registerAdmin);
 // @desc    Login user
 // @access  Public
 // Note: reCAPTCHA verification enabled for login (comment out verifyRecaptcha if you don't have keys yet)
-router.post('/login', loginValidation, verifyRecaptcha, loginUser);
+router.post('/login', loginValidation, loginUser);
 
 // @route   GET /api/auth/me
 // @desc    Get current user profile

@@ -1,26 +1,14 @@
 const Contact = require('../models/Contact');
 const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
-const { verifyRecaptcha } = require('../middleware/recaptchaMiddleware');
+const verifyCaptcha = require('../utils/verifyCaptcha');
 const { asyncHandler } = require('../middleware/errorMiddleware');
-const { sendContactNotification } = require('../utils/mailer');
+const { sendContactNotification, sendAutoReplyEmail } = require('../utils/mailer');
 
 // @desc    Submit contact form
 // @route   POST /api/contact
 // @access  Public
 const submitContact = asyncHandler(async (req, res) => {
-  // Verify reCAPTCHA first
-  await new Promise((resolve, reject) => {
-    verifyRecaptcha(req, res, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-  });
-
-  // Check for validation errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
@@ -30,7 +18,32 @@ const submitContact = asyncHandler(async (req, res) => {
     });
   }
 
-  const { name, email, subject, message } = req.body;
+  const { name, email, subject, message, recaptchaToken } = req.body;
+  
+  // Log received data for debugging (without sensitive info)
+  console.log('Contact form submission received:', {
+    name: name?.substring(0, 10) + '...',
+    email: email?.substring(0, 10) + '...',
+    subject: subject?.substring(0, 20) + '...',
+    messageLength: message?.length,
+    hasRecaptchaToken: !!recaptchaToken
+  });
+
+  if(!recaptchaToken) {
+    return res.status(400).json( {
+      success: false,
+      message: 'reCAPTCHA token is required'
+    });
+  }
+
+  const isHuman = await verifyCaptcha(recaptchaToken);
+
+  if(!isHuman) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid reCAPTCHA. Please try again.'
+    });
+  }
 
   // Check if database is connected
   if (!mongoose.connection.readyState) {
@@ -60,15 +73,23 @@ const submitContact = asyncHandler(async (req, res) => {
 
   await contact.save();
 
-  // Send email notification (optional - won't fail if email not configured)
+  // Send admin notification email
   try {
     await sendContactNotification({ name, email, subject, message });
   } catch (emailError) {
-    console.error('Email sending failed:', emailError);
+    console.error('Admin email sending failed:', emailError);
     // Don't fail the request if email fails
   }
 
-  res.status(201).json({
+  // Send auto-reply email to user
+  try {
+    await sendAutoReplyEmail({ name, email });
+  } catch (emailError) {
+    console.error('Auto-reply email sending failed:', emailError);
+    // Don't fail the request if email fails
+  }
+
+  res.status(200).json({
     success: true,
     message: 'Message sent successfully!',
     data: {

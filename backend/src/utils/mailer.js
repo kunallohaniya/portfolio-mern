@@ -17,24 +17,34 @@ const createTransporter = () => {
   }
 
   try {
-    const transporter = nodemailer.createTransporter({
-      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.EMAIL_PORT) || 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      },
-      tls: {
-        rejectUnauthorized: false // For development; set to true in production
-      }
-    });
+      const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port: Number(process.env.EMAIL_PORT) || 587,
+    secure: false, // true only for 465
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
 
-    return transporter;
+  transporter.verify((err) => {
+  if (err) {
+    console.error('❌ Email transporter verification failed:', err.message);
+  } else {
+    console.log('✅ Email transporter ready');
+  }
+});
+
+    return transporter;  
   } catch (error) {
     console.error('❌ Error creating email transporter:', error.message);
     return null;
   }
+
+  
 };
 
 /**
@@ -251,6 +261,121 @@ const sendWelcomeEmail = async ({ email, username }) => {
 };
 
 /**
+ * Send auto-reply email to contact form submitter
+ * @param {Object} contactData - Contact form data
+ * @param {string} contactData.name - Recipient name
+ * @param {string} contactData.email - Recipient email
+ * @returns {Promise<Object>} Result of email sending
+ */
+const sendAutoReplyEmail = async ({ name, email }) => {
+  const transporter = createTransporter();
+  
+  if (!transporter) {
+    return {
+      success: false,
+      message: 'Email service not configured'
+    };
+  }
+
+  try {
+    const mailOptions = {
+      from: `"Portfolio" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Thank you for contacting me',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+            }
+            .container {
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+              background-color: #f9f9f9;
+              border-radius: 8px;
+            }
+            .header {
+              background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);
+              color: white;
+              padding: 20px;
+              border-radius: 8px 8px 0 0;
+              text-align: center;
+            }
+            .content {
+              background: white;
+              padding: 30px;
+              border-radius: 0 0 8px 8px;
+            }
+            .message {
+              margin-bottom: 20px;
+              color: #555;
+            }
+            .footer {
+              margin-top: 20px;
+              padding-top: 20px;
+              border-top: 1px solid #ddd;
+              font-size: 12px;
+              color: #999;
+              text-align: center;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h2>Thank You for Contacting Me</h2>
+            </div>
+            <div class="content">
+              <p class="message">Dear ${name},</p>
+              <p class="message">Thank you for contacting me. I've received your message and will get back to you soon.</p>
+              <p class="message">I appreciate your interest and look forward to connecting with you!</p>
+              <div class="footer">
+                <p>This is an automated message from my portfolio contact form.</p>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+      text: `
+        Thank You for Contacting Me
+        
+        Dear ${name},
+        
+        Thank you for contacting me. I've received your message and will get back to you soon.
+        
+        I appreciate your interest and look forward to connecting with you!
+        
+        This is an automated message from my portfolio contact form.
+      `
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ Auto-reply email sent successfully:', info.messageId);
+    
+    return {
+      success: true,
+      message: 'Auto-reply email sent successfully',
+      messageId: info.messageId
+    };
+  } catch (error) {
+    console.error('❌ Error sending auto-reply email:', error);
+    
+    return {
+      success: false,
+      message: 'Failed to send auto-reply email',
+      error: error.message
+    };
+  }
+};
+
+/**
  * Verify email configuration
  * @returns {Promise<boolean>} True if email is configured and working
  */
@@ -274,6 +399,7 @@ const verifyEmailConfig = async () => {
 module.exports = {
   createTransporter,
   sendContactNotification,
+  sendAutoReplyEmail,
   sendWelcomeEmail,
   verifyEmailConfig
 };

@@ -5,11 +5,7 @@ import { toast } from 'react-hot-toast';
 import { contactAPI } from '../utils/api';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { ANIMATION_VARIANTS } from '../utils/constants';
-import { initAndExecuteRecaptcha } from '../utils/recaptcha';
-import { initEmailJS, sendContactEmail } from '../utils/emailjs';
-
-// Initialize EmailJS when component mounts
-initEmailJS();
+import ReCAPTCHA from 'react-google-recaptcha';
 
 // Premium Paper Plane Animation Component
 const PaperPlaneAnimation = React.memo(({ isFlying }) => {
@@ -92,24 +88,129 @@ const ContactForm = React.memo(() => {
     subject: '',
     message: ''
   });
+const [recaptchaToken, setRecaptchaToken] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFlying, setIsFlying] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
+  const [errors, setErrors] = useState({});
+
+  // Validation rules matching backend
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Name validation: 2-50 characters
+    const nameTrimmed = formData.name.trim();
+    if (!nameTrimmed) {
+      newErrors.name = 'Name is required';
+    } else if (nameTrimmed.length < 2) {
+      newErrors.name = 'Name must be at least 2 characters';
+    } else if (nameTrimmed.length > 50) {
+      newErrors.name = 'Name must not exceed 50 characters';
+    }
+
+    // Email validation
+    const emailTrimmed = formData.email.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailTrimmed) {
+      newErrors.email = 'Email is required';
+    } else if (!emailRegex.test(emailTrimmed)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    // Subject validation: 5-100 characters
+    const subjectTrimmed = formData.subject.trim();
+    if (!subjectTrimmed) {
+      newErrors.subject = 'Subject is required';
+    } else if (subjectTrimmed.length < 5) {
+      newErrors.subject = 'Subject must be at least 5 characters';
+    } else if (subjectTrimmed.length > 100) {
+      newErrors.subject = 'Subject must not exceed 100 characters';
+    }``
+
+    // Message validation: 10-1000 characters
+    const messageTrimmed = formData.message.trim();
+    if (!messageTrimmed) {
+      newErrors.message = 'Message is required';
+    } else if (messageTrimmed.length < 10) {
+      newErrors.message = 'Message must be at least 10 characters';
+    } else if (messageTrimmed.length > 1000) {
+      newErrors.message = 'Message must not exceed 1000 characters';
+    }
+
+    setErrors(newErrors);
+    const isValid = Object.keys(newErrors).length === 0;
+    
+    if (!isValid) {
+      console.log('Validation failed:', newErrors);
+      console.log('Form data:', {
+        name: nameTrimmed,
+        email: emailTrimmed,
+        subject: subjectTrimmed,
+        messageLength: messageTrimmed.length
+      });
+    }
+    
+    return { isValid, errors: newErrors };
+  };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+    
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: ''
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    // Prevent double submission
+    if (isSubmitting) return;
+    
+    // Validate form before submission
+    const validationResult = validateForm();
+    console.log('Validation result:', validationResult);
+    
+    if (!validationResult.isValid) {
+      console.log('Form validation failed, preventing submission');
+      console.log('Validation errors:', validationResult.errors);
+      console.log('Current form data:', formData);
+      toast.error('Please fix the errors in the form before submitting.');
+
+      if(!recaptchaToken) {
+        toast.error("Please coplete the reCAPTCHA verification.");
+        return;
+      }
+      // Scroll to first error field
+      const firstErrorField = Object.keys(validationResult.errors)[0];
+      if (firstErrorField) {
+        const element = document.getElementById(firstErrorField);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => element.focus(), 300);
+        }
+      }
+      return;
+    }
+    
+    console.log('Form validation passed, proceeding with submission');
     setIsSubmitting(true);
 
     try {
-      // Execute reCAPTCHA verification
-      const recaptchaToken = await initAndExecuteRecaptcha('contact_form');
+      // Verify reCAPTCHA
+      if (!recaptchaToken) {
+        toast.error('reCAPTCHA token is required');
+        return;
+      }
       
       // Submit form with reCAPTCHA token to backend
       const response = await contactAPI.submit({
@@ -118,27 +219,46 @@ const ContactForm = React.memo(() => {
       });
       
       if (response.data.success) {
-        // Also send email via EmailJS as backup
-        try {
-          await sendContactEmail(formData);
-        } catch (emailError) {
-          console.warn('EmailJS failed, but form submission was successful:', emailError);
-        }
-        
         toast.success('Message sent successfully! I\'ll get back to you soon.');
         setFormData({ name: '', email: '', subject: '', message: '' });
+        setErrors({});
         setIsFlying(true);
         
         setTimeout(() => {
           setIsFlying(false);
         }, 2500);
+      } else {
+        toast.error(
+          response.data.message || 
+          'Failed to send message. Please try again later.'
+        );
       }
     } catch (error) {
       console.error('Contact form error:', error);
-      toast.error(
-        error.response?.data?.message || 
-        'Failed to send message. Please try again later.'
-      );
+      
+      // Handle network errors
+      if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+        toast.error('Cannot connect to server. Please make sure the backend server is running on port 5000.');
+        return;
+      }
+      
+      // Handle timeout errors
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        toast.error('Request timed out. Please try again.');
+        return;
+      }
+      
+      // Handle validation errors
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const validationErrors = error.response.data.errors
+          .map(err => err.msg || err.message)
+          .join(', ');
+        toast.error(`Validation error: ${validationErrors}`);
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error('Failed to send message. Please try again later.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -160,7 +280,7 @@ const ContactForm = React.memo(() => {
           Send me a message
         </h3>
         
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-8" noValidate>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -169,7 +289,9 @@ const ContactForm = React.memo(() => {
               transition={{ delay: 0.1 }}
             >
               <label htmlFor="name" className="block text-sm font-semibold text-dark-700 dark:text-dark-300 mb-3">
-                Full Name *
+                Full Name * {formData.name.length > 0 && (
+                  <span className="text-xs font-normal text-dark-500">({formData.name.length}/50)</span>
+                )}
               </label>
               <div className="relative">
                 <input
@@ -179,17 +301,25 @@ const ContactForm = React.memo(() => {
                   value={formData.name}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('name')}
-                  onBlur={() => setFocusedField(null)}
+                  onBlur={() => {
+                    setFocusedField(null);
+                    validateForm();
+                  }}
                   required
                   className={`w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none ${
-                    focusedField === 'name'
+                    errors.name
+                      ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                      : focusedField === 'name'
                       ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
                       : 'border-white/20 dark:border-white/10 bg-white/50 dark:bg-dark-800/50'
                   }`}
                   placeholder="Enter your full name"
                 />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                )}
                 <motion.div
-                  className="absolute inset-0 rounded-xl border-2 border-primary-500 opacity-0"
+                  className="absolute inset-0 rounded-xl border-2 border-primary-500 opacity-0 pointer-events-none"
                   animate={{ opacity: focusedField === 'name' ? 0.3 : 0 }}
                   transition={{ duration: 0.2 }}
                 />
@@ -213,17 +343,25 @@ const ContactForm = React.memo(() => {
                   value={formData.email}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('email')}
-                  onBlur={() => setFocusedField(null)}
+                  onBlur={() => {
+                    setFocusedField(null);
+                    validateForm();
+                  }}
                   required
                   className={`w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none ${
-                    focusedField === 'email'
+                    errors.email
+                      ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                      : focusedField === 'email'
                       ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
                       : 'border-white/20 dark:border-white/10 bg-white/50 dark:bg-dark-800/50'
                   }`}
                   placeholder="Enter your email address"
                 />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                )}
                 <motion.div
-                  className="absolute inset-0 rounded-xl border-2 border-primary-500 opacity-0"
+                  className="absolute inset-0 rounded-xl border-2 border-primary-500 opacity-0 pointer-events-none"
                   animate={{ opacity: focusedField === 'email' ? 0.3 : 0 }}
                   transition={{ duration: 0.2 }}
                 />
@@ -238,7 +376,9 @@ const ContactForm = React.memo(() => {
             transition={{ delay: 0.3 }}
           >
             <label htmlFor="subject" className="block text-sm font-semibold text-dark-700 dark:text-dark-300 mb-3">
-              Subject *
+              Subject * {formData.subject.length > 0 && (
+                <span className="text-xs font-normal text-dark-500">({formData.subject.length}/100)</span>
+              )}
             </label>
             <div className="relative">
               <input
@@ -248,17 +388,25 @@ const ContactForm = React.memo(() => {
                 value={formData.subject}
                 onChange={handleChange}
                 onFocus={() => setFocusedField('subject')}
-                onBlur={() => setFocusedField(null)}
+                onBlur={() => {
+                  setFocusedField(null);
+                  validateForm();
+                }}
                 required
                 className={`w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none ${
-                  focusedField === 'subject'
+                  errors.subject
+                    ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                    : focusedField === 'subject'
                     ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
                     : 'border-white/20 dark:border-white/10 bg-white/50 dark:bg-dark-800/50'
                 }`}
                 placeholder="What is this about?"
               />
+              {errors.subject && (
+                <p className="mt-1 text-sm text-red-500">{errors.subject}</p>
+              )}
               <motion.div
-                className="absolute inset-0 rounded-xl border-2 border-primary-500 opacity-0"
+                className="absolute inset-0 rounded-xl border-2 border-primary-500 opacity-0 pointer-events-none"
                 animate={{ opacity: focusedField === 'subject' ? 0.3 : 0 }}
                 transition={{ duration: 0.2 }}
               />
@@ -272,7 +420,17 @@ const ContactForm = React.memo(() => {
             transition={{ delay: 0.4 }}
           >
             <label htmlFor="message" className="block text-sm font-semibold text-dark-700 dark:text-dark-300 mb-3">
-              Message *
+              Message * {formData.message.length > 0 && (
+                <span className={`text-xs font-normal ${
+                  formData.message.length < 10 
+                    ? 'text-red-500' 
+                    : formData.message.length > 1000 
+                    ? 'text-red-500' 
+                    : 'text-dark-500'
+                }`}>
+                  ({formData.message.length}/1000)
+                </span>
+              )}
             </label>
             <div className="relative">
               <textarea
@@ -281,24 +439,40 @@ const ContactForm = React.memo(() => {
                 value={formData.message}
                 onChange={handleChange}
                 onFocus={() => setFocusedField('message')}
-                onBlur={() => setFocusedField(null)}
+                onBlur={() => {
+                  setFocusedField(null);
+                  validateForm();
+                }}
                 required
                 rows={6}
                 className={`w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none resize-none ${
-                  focusedField === 'message'
+                  errors.message
+                    ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                    : focusedField === 'message'
                     ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
                     : 'border-white/20 dark:border-white/10 bg-white/50 dark:bg-dark-800/50'
                 }`}
                 placeholder="Tell me about your project or just say hello!"
               />
+              {errors.message && (
+                <p className="mt-1 text-sm text-red-500">{errors.message}</p>
+              )}
               <motion.div
-                className="absolute inset-0 rounded-xl border-2 border-primary-500 opacity-0"
+                className="absolute inset-0 rounded-xl border-2 border-primary-500 opacity-0 pointer-events-none"
                 animate={{ opacity: focusedField === 'message' ? 0.3 : 0 }}
                 transition={{ duration: 0.2 }}
               />
             </div>
           </motion.div>
           
+              <div className="flex justify-center">
+      <ReCAPTCHA
+        sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+        onChange={(token) => setRecaptchaToken(token)}
+        onExpired={() => setRecaptchaToken(null)}
+      />
+    </div>
+
           <motion.button
             type="submit"
             disabled={isSubmitting}

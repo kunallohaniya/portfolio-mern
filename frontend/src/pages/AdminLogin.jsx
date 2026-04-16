@@ -23,38 +23,53 @@ const AdminLogin = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+  e.preventDefault();
+  e.stopPropagation();
 
-    try {
-      // Get reCAPTCHA token
-      let recaptchaToken = null;
-      try {
-        recaptchaToken = await initAndExecuteRecaptcha('login');
-      } catch (recaptchaError) {
-        console.warn('reCAPTCHA not configured or failed:', recaptchaError);
-        // Continue without reCAPTCHA if not configured
-      }
+  if (isSubmitting) return;
 
-      const response = await api.post('/auth/login', {
-        ...credentials,
-        ...(recaptchaToken && { recaptchaToken })
-      });
-      
-      if (response.data.success) {
-        toast.success('Login successful!');
-        navigate('/admin/dashboard');
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      toast.error(
-        error.response?.data?.message || 
-        'Login failed. Please check your credentials.'
-      );
-    } finally {
-      setIsLoading(false);
+  const { isValid } = validateForm();
+  if (!isValid) {
+    toast.error('Please fix the errors in the form before submitting.');
+    return;
+  }
+
+  // ✅ Proper reCAPTCHA check
+  if (!recaptchaToken) {
+    toast.error('Please complete the reCAPTCHA verification.');
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    const response = await contactAPI.submit({
+      ...formData,
+      recaptchaToken
+    });
+
+    if (response.data.success) {
+      toast.success("Message sent successfully! I'll get back to you soon.");
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setRecaptchaToken(null);
+      setErrors({});
+      setIsFlying(true);
+
+      setTimeout(() => setIsFlying(false), 2500);
+    } else {
+      toast.error(response.data.message || 'Failed to send message.');
     }
-  };
+  } catch (error) {
+    console.error('Contact form error:', error);
+    toast.error(
+      error.response?.data?.message ||
+      'Failed to send message. Please try again later.'
+    );
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-500 to-secondary-600 dark:from-dark-800 dark:to-dark-900 flex items-center justify-center p-4">

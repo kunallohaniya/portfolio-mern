@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -30,17 +30,20 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Handle common errors
-    if (error.response?.status === 401) {
+    // Handle network errors
+    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+      console.error('Network error: Cannot connect to backend server');
+      // Don't reject here, let the component handle it
+    } else if (error.code === 'ECONNABORTED') {
+      // Handle timeout
+      console.error('Request timeout');
+    } else if (error.response?.status === 401) {
       // Handle unauthorized access
       console.error('Unauthorized access');
       // Optionally redirect to login
     } else if (error.response?.status === 500) {
       // Handle server errors
-      console.error('Server error');
-    } else if (error.code === 'ECONNABORTED') {
-      // Handle timeout
-      console.error('Request timeout');
+      console.error('Server error:', error.response?.data);
     }
     
     return Promise.reject(error);

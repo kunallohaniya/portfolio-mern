@@ -1,4 +1,5 @@
 const express = require('express');
+const router = express.Router();
 const { body } = require('express-validator');
 const {
   submitContact,
@@ -9,31 +10,40 @@ const {
 } = require('../controllers/contactController');
 const { authenticateToken, requireAdmin } = require('../middleware/authMiddleware');
 
-const router = express.Router();
-
 // Validation middleware
 const contactValidation = [
   body('name')
     .trim()
+    .notEmpty()
+    .withMessage('Name is required')
     .isLength({ min: 2, max: 50 })
     .withMessage('Name must be between 2 and 50 characters'),
   body('email')
+    .trim()
+    .notEmpty()
+    .withMessage('Email is required')
     .isEmail()
     .normalizeEmail()
     .withMessage('Please provide a valid email address'),
   body('subject')
     .trim()
-    .isLength({ min: 5, max: 100 })
-    .withMessage('Subject must be between 5 and 100 characters'),
+    .notEmpty()
+    .withMessage('Subject is required')
+    .isLength({ min: 3, max: 200 })
+    .withMessage('Subject must be between 3 and 200 characters'),
   body('message')
     .trim()
-    .isLength({ min: 10, max: 1000 })
-    .withMessage('Message must be between 10 and 1000 characters')
+    .notEmpty()
+    .withMessage('Message is required')
+    .isLength({ min: 5, max: 2000 })
+    .withMessage('Message must be between 5 and 2000 characters'),
+  // recaptchaToken is optional in validation but checked in controller
+  body('recaptchaToken')
+    .optional()
+    .notEmpty()
+    .withMessage('reCAPTCHA token cannot be empty if provided')
 ];
 
-// @route   POST /api/contact
-// @desc    Submit contact form
-// @access  Public
 router.post('/', contactValidation, submitContact);
 
 // @route   GET /api/contact
