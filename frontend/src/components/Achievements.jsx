@@ -312,103 +312,6 @@ const AchievementStats = React.memo(() => {
 
 AchievementStats.displayName = 'AchievementStats';
 
-// Premium Learning Journey Component
-const LearningJourney = React.memo(() => {
-  const milestones = [
-    {
-      year: '2023',
-      title: 'Advanced Certifications',
-      description: 'Completed AWS Developer and React certifications',
-      icon: '☁️',
-      color: 'bg-blue-50 dark:bg-blue-900/20',
-    },
-    {
-      year: '2022',
-      title: 'Open Source Contributions',
-      description: 'Started contributing to major open source projects',
-      icon: '🌟',
-      color: 'bg-green-50 dark:bg-green-900/20',
-    },
-    {
-      year: '2021',
-      title: 'Full Stack Mastery',
-      description: 'Mastered the complete MERN stack development',
-      icon: '⚡',
-      color: 'bg-purple-50 dark:bg-purple-900/20',
-    },
-    {
-      year: '2020',
-      title: 'First Professional Role',
-      description: 'Started my career as a frontend developer',
-      icon: '🚀',
-      color: 'bg-orange-50 dark:bg-orange-900/20',
-    },
-    {
-      year: '2019',
-      title: 'Bootcamp Graduate',
-      description: 'Completed intensive full-stack development bootcamp',
-      icon: '🎓',
-      color: 'bg-pink-50 dark:bg-pink-900/20',
-    },
-    {
-      year: '2018',
-      title: 'First Code',
-      description: 'Wrote my first "Hello World" program',
-      icon: '💻',
-      color: 'bg-indigo-50 dark:bg-indigo-900/20',
-    },
-  ];
-
-  return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h3 className="heading-lg mb-4">
-          <span className="gradient-text-premium">My Learning Journey</span>
-        </h3>
-        <p className="text-body-base text-dark-600 dark:text-dark-300 max-w-2xl mx-auto">
-          A timeline of my professional growth and key milestones in my development career
-        </p>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {milestones.map((milestone, index) => (
-          <motion.div
-            key={milestone.year}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.1 }}
-            whileHover={{ scale: 1.02, y: -5 }}
-            className={`glass-premium p-6 rounded-2xl border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-300 ${milestone.color}`}
-          >
-            <div className="flex items-center gap-4 mb-4">
-              <motion.div
-                className="text-3xl"
-                whileHover={{ scale: 1.2, rotate: 10 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                {milestone.icon}
-              </motion.div>
-              <div>
-                <h4 className="font-bold text-dark-800 dark:text-white text-lg">
-                  {milestone.year}
-                </h4>
-                <h5 className="font-semibold text-dark-700 dark:text-dark-200">
-                  {milestone.title}
-                </h5>
-              </div>
-            </div>
-            <p className="text-sm text-dark-600 dark:text-dark-300 leading-relaxed">
-              {milestone.description}
-            </p>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-});
-
-LearningJourney.displayName = 'LearningJourney';
 
 const Achievements = () => {
   const { getAchievementsData, getPersonalInfo } = usePortfolioData();
@@ -552,15 +455,6 @@ const Achievements = () => {
           </div>
         </motion.div>
 
-        {/* Premium Learning Journey */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 1.0 }}
-        >
-          <LearningJourney />
-        </motion.div>
       </div>
     </section>
   );

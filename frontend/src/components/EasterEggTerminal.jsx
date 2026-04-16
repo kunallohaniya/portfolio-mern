@@ -52,9 +52,6 @@ const Terminal = () => {
         newHistory.push({ type: 'output', content: `${index + 1}. ${project.title} - ${project.category}` });
         newHistory.push({ type: 'output', content: `   Description: ${project.description}` });
         newHistory.push({ type: 'output', content: `   Technologies: ${project.technologies.join(', ')}` });
-        if (project.githubUrl) {
-          newHistory.push({ type: 'output', content: `   GitHub: ${project.githubUrl}` });
-        }
         if (project.liveUrl) {
           newHistory.push({ type: 'output', content: `   Live Demo: ${project.liveUrl}` });
         }

@@ -11,7 +11,6 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const socialLinksData = [
-    { icon: FaGithub, href: socialLinks.github, label: 'GitHub' },
     { icon: FaLinkedin, href: socialLinks.linkedin, label: 'LinkedIn' },
     { icon: FaTwitter, href: socialLinks.twitter, label: 'Twitter' },
     { icon: FaEnvelope, href: socialLinks.email, label: 'Email' },

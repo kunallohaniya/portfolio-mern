@@ -4,6 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  VITE_RECAPTCHA_SITE_KEY = "6LdVtkwsAAAAAKhPAfLpYaz4Hu2hWxsG8Qd_5wAA"
 
 [[redirects]]
   from = "/*"

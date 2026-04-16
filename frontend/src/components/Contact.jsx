@@ -545,7 +545,6 @@ const ContactInfo = React.memo(() => {
   ];
 
   const socialLinksData = [
-    { icon: FaGithub, href: socialLinks.github, label: 'GitHub', color: 'hover:text-gray-800 dark:hover:text-gray-200' },
     { icon: FaLinkedin, href: socialLinks.linkedin, label: 'LinkedIn', color: 'hover:text-blue-600' },
     { icon: FaTwitter, href: socialLinks.twitter, label: 'Twitter', color: 'hover:text-blue-400' },
     { icon: FaInstagram, href: socialLinks.instagram, label: 'Instagram', color: 'hover:text-pink-500' },

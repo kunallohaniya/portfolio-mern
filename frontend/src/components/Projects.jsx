@@ -172,19 +172,6 @@ const ProjectModal = ({ project, isOpen, onClose }) => {
 
               {/* Premium Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                {project.githubUrl && (
-                  <motion.a
-                    href={project.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="btn-glow flex items-center justify-center gap-3 flex-1 py-4 text-lg font-semibold"
-                  >
-                    <FaGithub className="w-5 h-5" />
-                    View Source Code
-                  </motion.a>
-                )}
                 
                 {project.liveUrl && (
                   <motion.a
@@ -300,19 +287,6 @@ const ProjectCard = ({ project, index }) => {
               View Details
             </motion.button>
             
-            {project.githubUrl && (
-              <motion.a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="p-3 glass-premium text-dark-700 dark:text-dark-300 rounded-xl hover:bg-primary-100 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-300 interactive-glow"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <FaGithub className="w-4 h-4" />
-              </motion.a>
-            )}
             
             {project.liveUrl && (
               <motion.a
