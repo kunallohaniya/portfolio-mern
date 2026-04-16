@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPaperPlane, FaMapMarkerAlt, FaPhone, FaEnvelope, FaGithub, FaLinkedin, FaTwitter, FaInstagram, FaRocket, FaHeart, FaCheck, FaSpinner } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
-import { contactAPI } from '../utils/api';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { ANIMATION_VARIANTS } from '../utils/constants';
-import ReCAPTCHA from 'react-google-recaptcha';
+
+// Removed: contactAPI and ReCAPTCHA imports (Requirement 1 & 2)
 
 // Premium Paper Plane Animation Component
 const PaperPlaneAnimation = React.memo(({ isFlying }) => {
@@ -88,17 +88,17 @@ const ContactForm = React.memo(() => {
     subject: '',
     message: ''
   });
-const [recaptchaToken, setRecaptchaToken] = useState(null);
+
+  // Removed: recaptchaToken state (Requirement 2)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFlying, setIsFlying] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
   const [errors, setErrors] = useState({});
 
-  // Validation rules matching backend
+  // Validation rules (Requirement 8 - Keep unchanged)
   const validateForm = () => {
     const newErrors = {};
 
-    // Name validation: 2-50 characters
     const nameTrimmed = formData.name.trim();
     if (!nameTrimmed) {
       newErrors.name = 'Name is required';
@@ -108,7 +108,6 @@ const [recaptchaToken, setRecaptchaToken] = useState(null);
       newErrors.name = 'Name must not exceed 50 characters';
     }
 
-    // Email validation
     const emailTrimmed = formData.email.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailTrimmed) {
@@ -117,7 +116,6 @@ const [recaptchaToken, setRecaptchaToken] = useState(null);
       newErrors.email = 'Please enter a valid email address';
     }
 
-    // Subject validation: 5-100 characters
     const subjectTrimmed = formData.subject.trim();
     if (!subjectTrimmed) {
       newErrors.subject = 'Subject is required';
@@ -127,7 +125,6 @@ const [recaptchaToken, setRecaptchaToken] = useState(null);
       newErrors.subject = 'Subject must not exceed 100 characters';
     }
 
-    // Message validation: 10-1000 characters
     const messageTrimmed = formData.message.trim();
     if (!messageTrimmed) {
       newErrors.message = 'Message is required';
@@ -138,130 +135,73 @@ const [recaptchaToken, setRecaptchaToken] = useState(null);
     }
 
     setErrors(newErrors);
-    const isValid = Object.keys(newErrors).length === 0;
-    
-    if (!isValid) {
-      console.log('Validation failed:', newErrors);
-      console.log('Form data:', {
-        name: nameTrimmed,
-        email: emailTrimmed,
-        subject: subjectTrimmed,
-        messageLength: messageTrimmed.length
-      });
-    }
-    
-    return { isValid, errors: newErrors };
+    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-    
-    // Clear error for this field when user starts typing
+    setFormData({ ...formData, [name]: value });
     if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: ''
-      });
+      setErrors({ ...errors, [name]: '' });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    e.stopPropagation();
-    
-    // Prevent double submission
     if (isSubmitting) return;
     
-    // Validate form before submission
     const validationResult = validateForm();
-    console.log('Validation result:', validationResult);
-    
     if (!validationResult.isValid) {
-      console.log('Form validation failed, preventing submission');
-      console.log('Validation errors:', validationResult.errors);
-      console.log('Current form data:', formData);
       toast.error('Please fix the errors in the form before submitting.');
-
       return;
     }
     
-    console.log('Form validation passed, proceeding with submission');
     setIsSubmitting(true);
 
     try {
-      // Verify reCAPTCHA
-      if (!recaptchaToken) {
-        toast.error('Please complete the reCAPTCHA verification.');
-        setIsSubmitting(false);
-        return;
-      }
-      
-      // Submit form with reCAPTCHA token to backend
-      const response = await contactAPI.submit({
-        ...formData,
-        recaptchaToken
+      // Netlify Form Submission logic (Requirement 5)
+      const formDataEncoded = new URLSearchParams({
+        "form-name": "contact",
+        ...formData
+      }).toString();
+
+      const response = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formDataEncoded
       });
       
-      if (response.data.success) {
-        toast.success('Message sent successfully! I\'ll get back to you soon.');
-        setFormData({ name: '', email: '', subject: '', message: '' });
-        setErrors({});
-        setIsFlying(true);
-        
-        setTimeout(() => {
-          setIsFlying(false);
-        }, 2500);
-      } else {
-        toast.error(
-          response.data.message || 
-          'Failed to send message. Please try again later.'
-        );
+      if (!response.ok) {
+        throw new Error("Failed to submit to server");
       }
+      
+      // Success handling (Requirement 6 & 7)
+      toast.success('Message sent successfully! I\'ll get back to you soon.');
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setErrors({});
+      setIsFlying(true);
+      
+      setTimeout(() => {
+        setIsFlying(false);
+      }, 2500);
     } catch (error) {
-      console.error('Contact form error:', error);
-      
-      // Detailed logging for debugging 400 errors
-      if (error.response?.data) {
-        console.log('Server Error Data:', error.response.data);
-      }
-      
-      // Handle network errors
-      if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-        toast.error('Cannot connect to server. Please make sure the backend server is running on port 5000.');
-        setIsSubmitting(false);
-        return;
-      }
-      
-      // Handle validation and specific backend errors
-      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
-        const validationErrors = error.response.data.errors
-          .map(err => err.msg || err.message)
-          .join(', ');
-        toast.error(`Validation failed: ${validationErrors}`);
-      } else if (error.response?.data?.message) {
-        // This will capture "Invalid reCAPTCHA" or custom error messages
-        toast.error(error.response.data.message);
-      } else {
-        toast.error('Failed to send message. Please try again later.');
-      }
+      // Improved error handling per Requirement 7
+      console.error(error);
+      toast.error("Failed to send message. Note: Netlify Forms only work after deployment.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="glass-premium p-10 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl relative overflow-hidden">
+    <div className="glass-premium p-10 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl relative overflow-hidden min-h-[600px]">
       <FloatingIcons />
       <PaperPlaneAnimation isFlying={isFlying} />
       
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0.01, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        viewport={{ once: true, amount: 0.1 }}
         transition={{ duration: 0.6 }}
         className="relative z-10"
       >
@@ -269,7 +209,19 @@ const [recaptchaToken, setRecaptchaToken] = useState(null);
           Send me a message
         </h3>
         
-        <form onSubmit={handleSubmit} className="space-y-8" noValidate>
+        {/* Netlify Form Tag - Name attribute is sufficient for AJAX submission detection */}
+        <form 
+          name="contact"
+          method="POST"
+          data-netlify-honeypot="bot-field"
+          onSubmit={handleSubmit} 
+          className="space-y-8" 
+          noValidate
+        >
+          {/* Hidden Fields (Requirement 4) */}
+          <input type="hidden" name="form-name" value="contact" />
+          <input type="hidden" name="bot-field" />
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -410,15 +362,7 @@ const [recaptchaToken, setRecaptchaToken] = useState(null);
           >
             <label htmlFor="message" className="block text-sm font-semibold text-dark-700 dark:text-dark-300 mb-3">
               Message * {formData.message.length > 0 && (
-                <span className={`text-xs font-normal ${
-                  formData.message.length < 10 
-                    ? 'text-red-500' 
-                    : formData.message.length > 1000 
-                    ? 'text-red-500' 
-                    : 'text-dark-500'
-                }`}>
-                  ({formData.message.length}/1000)
-                </span>
+                <span className="text-xs font-normal text-dark-500">({formData.message.length}/1000)</span>
               )}
             </label>
             <div className="relative">
@@ -454,13 +398,7 @@ const [recaptchaToken, setRecaptchaToken] = useState(null);
             </div>
           </motion.div>
           
-              <div className="flex justify-center">
-      <ReCAPTCHA
-        sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
-        onChange={(token) => setRecaptchaToken(token)}
-        onExpired={() => setRecaptchaToken(null)}
-      />
-    </div>
+          {/* Removed: Google reCAPTCHA Component (Requirement 2) */}
 
           <motion.button
             type="submit"
@@ -557,7 +495,6 @@ const ContactInfo = React.memo(() => {
         </p>
       </motion.div>
 
-      {/* Premium Contact Information */}
       <div className="space-y-6">
         {contactItems.map((item, index) => (
           <motion.div
@@ -590,7 +527,6 @@ const ContactInfo = React.memo(() => {
         ))}
       </div>
 
-      {/* Premium Social Links */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -622,7 +558,6 @@ const ContactInfo = React.memo(() => {
         </div>
       </motion.div>
 
-      {/* Premium Availability Status */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -658,7 +593,6 @@ const Contact = () => {
 
   return (
     <section id="contact" className="py-24 bg-gradient-to-br from-white via-primary-50/30 to-secondary-50/30 dark:from-dark-900 dark:via-dark-800/30 dark:to-dark-700/30 relative overflow-hidden">
-      {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
           className="absolute top-20 right-20 w-64 h-64 glass-premium rounded-full blur-3xl opacity-20"
@@ -679,7 +613,6 @@ const Contact = () => {
       </div>
 
       <div className="container-premium relative z-10">
-        {/* Premium Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -710,9 +643,7 @@ const Contact = () => {
           </p>
         </motion.div>
 
-        {/* Premium Contact Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-20">
-          {/* Premium Contact Form */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -722,7 +653,6 @@ const Contact = () => {
             <ContactForm />
           </motion.div>
 
-          {/* Premium Contact Info */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -733,7 +663,6 @@ const Contact = () => {
           </motion.div>
         </div>
 
-        {/* Premium Call to Action */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}

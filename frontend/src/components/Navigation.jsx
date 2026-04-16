@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import { FaSun, FaMoon, FaBars, FaTimes, FaHome, FaUser, FaCode, FaProjectDiagram, FaTrophy, FaEnvelope, FaBlog } from 'react-icons/fa';

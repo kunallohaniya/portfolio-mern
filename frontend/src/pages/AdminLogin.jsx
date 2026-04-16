@@ -3,8 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaUser, FaLock, FaSignInAlt, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
-import { api } from '../utils/api';
-import { initAndExecuteRecaptcha } from '../utils/recaptcha';
+import { authAPI } from '../utils/api';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -23,53 +22,30 @@ const AdminLogin = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  e.stopPropagation();
+    e.preventDefault();
+    setIsLoading(true);
 
-  if (isSubmitting) return;
-
-  const { isValid } = validateForm();
-  if (!isValid) {
-    toast.error('Please fix the errors in the form before submitting.');
-    return;
-  }
-
-  // ✅ Proper reCAPTCHA check
-  if (!recaptchaToken) {
-    toast.error('Please complete the reCAPTCHA verification.');
-    return;
-  }
-
-  setIsSubmitting(true);
-
-  try {
-    const response = await contactAPI.submit({
-      ...formData,
-      recaptchaToken
-    });
-
-    if (response.data.success) {
-      toast.success("Message sent successfully! I'll get back to you soon.");
-      setFormData({ name: '', email: '', subject: '', message: '' });
-      setRecaptchaToken(null);
-      setErrors({});
-      setIsFlying(true);
-
-      setTimeout(() => setIsFlying(false), 2500);
-    } else {
-      toast.error(response.data.message || 'Failed to send message.');
+    try {
+      // Note: This relies on a backend which is currently not deployed.
+      const response = await authAPI.login(credentials);
+      
+      if (response.data.success) {
+        localStorage.setItem('token', response.data.token);
+        toast.success('Welcome back, Admin!');
+        navigate('/admin/dashboard');
+      } else {
+        toast.error(response.data.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error(
+        error.response?.data?.message || 
+        'Login failed. Backend might be offline.'
+      );
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error('Contact form error:', error);
-    toast.error(
-      error.response?.data?.message ||
-      'Failed to send message. Please try again later.'
-    );
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-500 to-secondary-600 dark:from-dark-800 dark:to-dark-900 flex items-center justify-center p-4">
@@ -93,6 +69,7 @@ const AdminLogin = () => {
               Admin Login
             </h2>
             <p className="text-dark-600 dark:text-dark-300">
+              {/* Note: Backend required for this feature */}
               Secure access to portfolio management
             </p>
           </div>
