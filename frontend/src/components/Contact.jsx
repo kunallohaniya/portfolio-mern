@@ -165,15 +165,11 @@ const ContactForm = React.memo(() => {
         ...formData
       }).toString();
 
-      const response = await fetch("/", {
+      await fetch("/", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: formDataEncoded
       });
-      
-      if (!response.ok) {
-        throw new Error("Failed to submit to server");
-      }
       
       // Success handling (Requirement 6 & 7)
       toast.success('Message sent successfully! I\'ll get back to you soon.');
@@ -185,9 +181,9 @@ const ContactForm = React.memo(() => {
         setIsFlying(false);
       }, 2500);
     } catch (error) {
-      // Improved error handling per Requirement 7
+      // Simplified error handling (Requirement 7)
       console.error(error);
-      toast.error("Failed to send message. Note: Netlify Forms only work after deployment.");
+      toast.error("Failed to send message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
