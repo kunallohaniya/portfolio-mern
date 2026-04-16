@@ -27,11 +27,6 @@ export const generateSitemap = (baseUrl = 'https://kunallohaniya.dev') => {
       changefreq: 'weekly'
     },
     {
-      url: '/achievements',
-      priority: '0.6',
-      changefreq: 'monthly'
-    },
-    {
       url: '/blog',
       priority: '0.8',
       changefreq: 'weekly'

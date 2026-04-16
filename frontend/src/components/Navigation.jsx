@@ -8,22 +8,24 @@ const Navigation = () => {
   const [scrolled, setScrolled] = useState(false);
   const { theme, toggleTheme, isDark } = useTheme();
 
-  const navItems = [
+  const navItems = useMemo(() => [
     { id: 'home', label: 'Home', icon: FaHome },
     { id: 'about', label: 'About', icon: FaUser },
     { id: 'skills', label: 'Skills', icon: FaCode },
     { id: 'projects', label: 'Projects', icon: FaProjectDiagram },
-    { id: 'achievements', label: 'Achievements', icon: FaTrophy },
     { id: 'blog', label: 'Blog', icon: FaBlog },
     { id: 'contact', label: 'Contact', icon: FaEnvelope },
-  ];
+  ], []);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      // Use a slightly larger threshold and check to minimize state updates
+      const isScrolled = window.scrollY > 20;
+      setScrolled(isScrolled);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    // Use passive listener for better scroll performance
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 

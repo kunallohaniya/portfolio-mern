@@ -3,7 +3,7 @@
  * Supports English and Hindi with optional Bhashini API integration
  */
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import enTranslations from '../i18n/en.json';
 import hiTranslations from '../i18n/hi.json';
 
@@ -49,19 +49,19 @@ export const LanguageProvider = ({ children }) => {
   /**
    * Toggle between English and Hindi
    */
-  const toggleLanguage = () => {
+  const toggleLanguage = useCallback(() => {
     setLanguage(prev => prev === 'en' ? 'hi' : 'en');
-  };
+  }, []);
 
   /**
    * Set specific language
    * @param {string} lang - Language code ('en' or 'hi')
    */
-  const changeLanguage = (lang) => {
+  const changeLanguage = useCallback((lang) => {
     if (lang === 'en' || lang === 'hi') {
       setLanguage(lang);
     }
-  };
+  }, []);
 
   /**
    * Get translated text by key path
@@ -73,7 +73,7 @@ export const LanguageProvider = ({ children }) => {
    * t('nav.home') // Returns "Home" or "होम"
    * t('contact.success', { name: 'John' }) // Returns text with {name} replaced
    */
-  const t = (key, replacements = {}) => {
+  const t = useCallback((key, replacements = {}) => {
     // Split the key by dots to access nested properties
     const keys = key.split('.');
     let value = translations;
@@ -103,7 +103,7 @@ export const LanguageProvider = ({ children }) => {
     });
 
     return translatedText;
-  };
+  }, [translations]);
 
   /**
    * Translate text using Bhashini API (optional advanced feature)
@@ -111,7 +111,7 @@ export const LanguageProvider = ({ children }) => {
    * @param {string} targetLang - Target language code
    * @returns {Promise<string>} Translated text
    */
-  const translateWithBhashini = async (text, targetLang = 'hi') => {
+  const translateWithBhashini = useCallback(async (text, targetLang = 'hi') => {
     // Check if Bhashini is configured
     const apiKey = import.meta.env.VITE_BHASHINI_KEY;
     const userId = import.meta.env.VITE_BHASHINI_USER_ID;
@@ -160,9 +160,9 @@ export const LanguageProvider = ({ children }) => {
       console.error('Bhashini translation error:', error);
       return text;
     }
-  };
+  }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     language,
     toggleLanguage,
     changeLanguage,
@@ -172,7 +172,14 @@ export const LanguageProvider = ({ children }) => {
     setBhashiniEnabled,
     isEnglish: language === 'en',
     isHindi: language === 'hi'
-  };
+  }), [
+    language,
+    toggleLanguage,
+    changeLanguage,
+    t,
+    translateWithBhashini,
+    bhashiniEnabled
+  ]);
 
   return (
     <LanguageContext.Provider value={value}>

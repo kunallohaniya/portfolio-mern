@@ -156,7 +156,7 @@ const Footer = () => {
               transition={{ duration: 0.6 }}
               className="text-dark-300 dark:text-dark-400 text-center md:text-right"
             >
-              <p>Built with React, Three.js & Framer Motion</p>
+              <p>Optimized for Performance & Smoothness</p>
             </motion.div>
           </div>
         </div>

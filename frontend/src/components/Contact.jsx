@@ -125,7 +125,7 @@ const [recaptchaToken, setRecaptchaToken] = useState(null);
       newErrors.subject = 'Subject must be at least 5 characters';
     } else if (subjectTrimmed.length > 100) {
       newErrors.subject = 'Subject must not exceed 100 characters';
-    }``
+    }
 
     // Message validation: 10-1000 characters
     const messageTrimmed = formData.message.trim();
@@ -186,19 +186,6 @@ const [recaptchaToken, setRecaptchaToken] = useState(null);
       console.log('Current form data:', formData);
       toast.error('Please fix the errors in the form before submitting.');
 
-      if(!recaptchaToken) {
-        toast.error("Please coplete the reCAPTCHA verification.");
-        return;
-      }
-      // Scroll to first error field
-      const firstErrorField = Object.keys(validationResult.errors)[0];
-      if (firstErrorField) {
-        const element = document.getElementById(firstErrorField);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          setTimeout(() => element.focus(), 300);
-        }
-      }
       return;
     }
     
@@ -208,7 +195,8 @@ const [recaptchaToken, setRecaptchaToken] = useState(null);
     try {
       // Verify reCAPTCHA
       if (!recaptchaToken) {
-        toast.error('reCAPTCHA token is required');
+        toast.error('Please complete the reCAPTCHA verification.');
+        setIsSubmitting(false);
         return;
       }
       
@@ -236,25 +224,26 @@ const [recaptchaToken, setRecaptchaToken] = useState(null);
     } catch (error) {
       console.error('Contact form error:', error);
       
+      // Detailed logging for debugging 400 errors
+      if (error.response?.data) {
+        console.log('Server Error Data:', error.response.data);
+      }
+      
       // Handle network errors
       if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
         toast.error('Cannot connect to server. Please make sure the backend server is running on port 5000.');
+        setIsSubmitting(false);
         return;
       }
       
-      // Handle timeout errors
-      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-        toast.error('Request timed out. Please try again.');
-        return;
-      }
-      
-      // Handle validation errors
+      // Handle validation and specific backend errors
       if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
         const validationErrors = error.response.data.errors
           .map(err => err.msg || err.message)
           .join(', ');
-        toast.error(`Validation error: ${validationErrors}`);
+        toast.error(`Validation failed: ${validationErrors}`);
       } else if (error.response?.data?.message) {
+        // This will capture "Invalid reCAPTCHA" or custom error messages
         toast.error(error.response.data.message);
       } else {
         toast.error('Failed to send message. Please try again later.');

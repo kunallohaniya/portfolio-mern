@@ -172,14 +172,6 @@ export const useAnalytics = () => {
     });
   };
 
-  // Track achievement view
-  const trackAchievementView = (achievementId, achievementTitle) => {
-    trackEvent('achievement_view', {
-      achievement_id: achievementId,
-      achievement_title: achievementTitle,
-      category: 'achievements',
-    });
-  };
 
   // Track theme toggle
   const trackThemeToggle = (newTheme) => {
@@ -228,7 +220,6 @@ export const useAnalytics = () => {
     trackSocialClick,
     trackBlogView,
     trackSkillHover,
-    trackAchievementView,
     trackThemeToggle,
     trackSearch,
     trackError,

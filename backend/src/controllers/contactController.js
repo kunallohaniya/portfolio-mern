@@ -11,9 +11,11 @@ const { sendContactNotification, sendAutoReplyEmail } = require('../utils/mailer
 const submitContact = asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    const errorDetails = errors.array().map(err => `${err.path}: ${err.msg}`).join(', ');
+    console.log('Validation failed:', errorDetails);
     return res.status(400).json({
       success: false,
-      message: 'Validation failed',
+      message: `Validation failed: ${errorDetails}`,
       errors: errors.array()
     });
   }
@@ -21,27 +23,22 @@ const submitContact = asyncHandler(async (req, res) => {
   const { name, email, subject, message, recaptchaToken } = req.body;
   
   // Log received data for debugging (without sensitive info)
-  console.log('Contact form submission received:', {
-    name: name?.substring(0, 10) + '...',
-    email: email?.substring(0, 10) + '...',
-    subject: subject?.substring(0, 20) + '...',
-    messageLength: message?.length,
-    hasRecaptchaToken: !!recaptchaToken
-  });
+  console.log('Contact form submission received from:', email);
 
   if(!recaptchaToken) {
     return res.status(400).json( {
       success: false,
-      message: 'reCAPTCHA token is required'
+      message: 'reCAPTCHA verification is required but token was missing.'
     });
   }
 
   const isHuman = await verifyCaptcha(recaptchaToken);
 
   if(!isHuman) {
+    console.log('reCAPTCHA verification failed for:', email);
     return res.status(400).json({
       success: false,
-      message: 'Invalid reCAPTCHA. Please try again.'
+      message: 'reCAPTCHA verification failed. Please ensure you are not using a VPN and try again.'
     });
   }
 
@@ -73,21 +70,13 @@ const submitContact = asyncHandler(async (req, res) => {
 
   await contact.save();
 
-  // Send admin notification email
-  try {
-    await sendContactNotification({ name, email, subject, message });
-  } catch (emailError) {
-    console.error('Admin email sending failed:', emailError);
-    // Don't fail the request if email fails
-  }
+  // Send admin notification email (Background - do not await)
+  sendContactNotification({ name, email, subject, message })
+    .catch(err => console.error('Background Admin email failed:', err));
 
-  // Send auto-reply email to user
-  try {
-    await sendAutoReplyEmail({ name, email });
-  } catch (emailError) {
-    console.error('Auto-reply email sending failed:', emailError);
-    // Don't fail the request if email fails
-  }
+  // Send auto-reply email to user (Background - do not await)
+  sendAutoReplyEmail({ name, email })
+    .catch(err => console.error('Background Auto-reply email failed:', err));
 
   res.status(200).json({
     success: true,

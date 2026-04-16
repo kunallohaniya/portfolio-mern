@@ -10,6 +10,7 @@ const AnimatedBackground = React.memo(() => {
     <div className="absolute inset-0 overflow-hidden">
       <motion.div
         className="absolute w-96 h-96 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full filter blur-3xl opacity-30"
+        style={{ top: '10%', right: '10%', willChange: 'transform, opacity' }}
         animate={{
           x: [0, 100, 0],
           y: [0, -100, 0],
@@ -20,10 +21,10 @@ const AnimatedBackground = React.memo(() => {
           repeat: Infinity,
           ease: "linear"
         }}
-        style={{ top: '10%', right: '10%' }}
       />
       <motion.div
         className="absolute w-96 h-96 bg-gradient-to-r from-accent-500 to-primary-500 rounded-full filter blur-3xl opacity-20"
+        style={{ bottom: '10%', left: '10%', willChange: 'transform, opacity' }}
         animate={{
           x: [0, -100, 0],
           y: [0, 100, 0],
@@ -34,7 +35,6 @@ const AnimatedBackground = React.memo(() => {
           repeat: Infinity,
           ease: "linear"
         }}
-        style={{ bottom: '10%', left: '10%' }}
       />
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaGithub, FaExternalLinkAlt, FaTimes, FaFilter, FaCode, FaEye, FaRocket, FaStar, FaHeart, FaCalendarAlt, FaTag } from 'react-icons/fa';
 import { usePortfolioData } from '../hooks/usePortfolioData';
+import SectionBackground from './SectionBackground';
 import { ANIMATION_VARIANTS } from '../utils/constants';
 
 // Premium Project Modal Component
@@ -333,25 +334,8 @@ const Projects = () => {
 
   return (
     <section id="projects" className="py-24 bg-gradient-to-br from-white via-secondary-50/30 to-primary-50/30 dark:from-dark-900 dark:via-dark-800/30 dark:to-dark-700/30 relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute top-20 left-20 w-64 h-64 glass-premium rounded-full blur-3xl opacity-20"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.2, 0.4, 0.2]
-          }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-20 w-48 h-48 glass-premium rounded-full blur-3xl opacity-20"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.4, 0.2, 0.4]
-          }}
-          transition={{ duration: 6, repeat: Infinity }}
-        />
-      </div>
+      {/* Optimized Performance Background */}
+      <SectionBackground primaryColor="secondary" secondaryColor="primary" />
 
       <div className="container-premium relative z-10">
         {/* Premium Section Header */}

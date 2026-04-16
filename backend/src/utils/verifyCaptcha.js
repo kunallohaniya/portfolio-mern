@@ -7,7 +7,8 @@ const verifyCaptcha = async (token) => {
     params: {
       secret: process.env.RECAPTCHA_SECRET_KEY,
       response: token
-    }
+    },
+    timeout: 5000 // Ensure Google verification doesn't hang the request
   });
 
   return response.data.success === true;

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { FaCode, FaRocket, FaLightbulb, FaUsers, FaAward, FaHeart, FaGraduationCap, FaBriefcase, FaTrophy, FaGlobe } from 'react-icons/fa';
 import { usePortfolioData } from '../hooks/usePortfolioData';
+import SectionBackground from './SectionBackground';
 import { ANIMATION_VARIANTS } from '../utils/constants';
 
 // Premium Timeline Component
@@ -269,25 +270,8 @@ const About = () => {
 
   return (
     <section id="about" className="py-24 bg-gradient-to-br from-white via-primary-50/30 to-secondary-50/30 dark:from-dark-900 dark:via-dark-800/30 dark:to-dark-700/30 relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute top-20 right-20 w-64 h-64 glass-premium rounded-full blur-3xl opacity-20"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.2, 0.4, 0.2]
-          }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-20 left-20 w-48 h-48 glass-premium rounded-full blur-3xl opacity-20"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.4, 0.2, 0.4]
-          }}
-          transition={{ duration: 6, repeat: Infinity }}
-        />
-      </div>
+      {/* Optimized Performance Background */}
+      <SectionBackground primaryColor="primary" secondaryColor="secondary" />
 
       <div className="container-premium relative z-10">
         {/* Premium Section Header */}
