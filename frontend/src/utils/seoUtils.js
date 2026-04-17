@@ -68,15 +68,12 @@ ${allPages.map(page => `  <url>
 
 // Generate robots.txt content
 export const generateRobotsTxt = (baseUrl = 'https://kunallohaniya.dev') => {
-  return `User-agent: *
+  return `# Robots.txt base configuration
+User-agent: *
 Allow: /
 
 # Sitemap
 Sitemap: ${baseUrl}/sitemap.xml
-
-# Disallow admin areas
-Disallow: /admin/
-Disallow: /api/
 
 # Allow all other content
 Allow: /css/

@@ -4,27 +4,21 @@
   "description": "A secure, dynamic, and stunning MERN portfolio for interviews and freelancing",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && npm run dev",
-    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install && cd ..",
+    "dev": "cd frontend && npm run dev",
+    "install:all": "npm install && cd frontend && npm install",
     "build": "cd frontend && npm install && npm run build",
-    "start": "cd backend && npm start",
-    "lint": "cd frontend && npm run lint && cd ../backend && npm run lint",
-    "test": "cd backend && npm test"
+    "lint": "cd frontend && npm run lint",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "portfolio",
-    "mern",
     "react",
-    "node",
-    "mongodb",
-    "express"
+    "static",
+    "netlify"
   ],
   "author": "Kunal Lohaniya",
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "^8.0.0"
   }
 }
 

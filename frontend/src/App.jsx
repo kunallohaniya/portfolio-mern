@@ -6,12 +6,8 @@ import { HelmetProvider } from 'react-helmet-async';
 // Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import AdminProtectedRoute from './components/AdminProtectedRoute';
-
 // Pages
 import Home from './pages/Home';
-import AdminLogin from './pages/AdminLogin';
-import AdminDashboard from './pages/AdminDashboard';
 import NotFound from './pages/NotFound';
 
 // Styles
@@ -34,13 +30,6 @@ function App() {
               </>
             } />
             
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={
-              <AdminProtectedRoute>
-                <AdminDashboard />
-              </AdminProtectedRoute>
-            } />
             
             {/* 404 Not Found */}
             <Route path="*" element={<NotFound />} />
