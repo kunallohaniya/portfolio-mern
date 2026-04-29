@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaDownload, FaArrowDown, FaCode, FaRocket, FaLightbulb } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaDownload, FaArrowDown, FaCode, FaRocket, FaLightbulb, FaEye, FaTimes } from 'react-icons/fa';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { ANIMATION_VARIANTS } from '../utils/constants';
 
@@ -152,6 +152,7 @@ const Hero = () => {
   const personalInfo = getPersonalInfo();
   const socialLinks = getSocialLinks();
   const [isLoaded, setIsLoaded] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const scrollToAbout = () => {
     const aboutSection = document.getElementById('about');
@@ -174,6 +175,7 @@ const Hero = () => {
   }, []);
 
   return (
+    <>
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
       {/* Premium Animated Background */}
       <div className="absolute inset-0 z-0">
@@ -266,7 +268,7 @@ const Hero = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 1.2 }}
-                className="flex flex-col sm:flex-row gap-6 justify-center items-center"
+                className="flex flex-col sm:flex-row gap-4 justify-center items-center"
               >
                 <motion.a
                   href={personalInfo.resumeUrl}
@@ -280,6 +282,18 @@ const Hero = () => {
                     Download Resume
                   </span>
                 </motion.a>
+
+                <motion.button
+                  onClick={() => setShowPreview(true)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="btn-outline inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold group"
+                >
+                  <span className="relative z-10 flex items-center gap-3">
+                    <FaEye className="w-5 h-5" />
+                    Preview Resume
+                  </span>
+                </motion.button>
 
                 <motion.button
                   onClick={scrollToAbout}
@@ -347,6 +361,65 @@ const Hero = () => {
         </motion.button>
       </motion.div>
     </section>
+
+      {/* Resume Preview Modal */}
+      <AnimatePresence>
+        {showPreview && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[1000] flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}
+            onClick={() => setShowPreview(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ duration: 0.3 }}
+              className="relative w-full max-w-4xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden"
+              style={{ height: '90vh' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white font-heading">Resume Preview</h2>
+                <div className="flex items-center gap-3">
+                  <motion.a
+                    href={personalInfo.resumeUrl}
+                    download
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium transition-colors duration-200"
+                  >
+                    <FaDownload className="w-4 h-4" />
+                    Download
+                  </motion.a>
+                  <motion.button
+                    onClick={() => setShowPreview(false)}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="p-2 rounded-lg text-gray-500 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                    aria-label="Close preview"
+                  >
+                    <FaTimes className="w-5 h-5" />
+                  </motion.button>
+                </div>
+              </div>
+              {/* Iframe */}
+              <iframe
+                src={personalInfo.resumePreviewUrl}
+                title="Resume Preview"
+                className="w-full"
+                style={{ height: 'calc(90vh - 65px)', border: 'none' }}
+                allow="autoplay"
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 

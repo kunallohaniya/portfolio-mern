@@ -1,9 +1,37 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { FaCode, FaServer, FaTools, FaChartLine, FaRocket, FaStar, FaHeart } from 'react-icons/fa';
+import { FaCode, FaServer, FaTools, FaChartLine, FaRocket, FaStar, FaHeart, FaDatabase, FaMobileAlt, FaBrain, FaCloud } from 'react-icons/fa';
+import { SiReact, SiJavascript, SiTypescript, SiHtml5, SiTailwindcss, SiNextdotjs, SiVuedotjs, SiSass, SiNodedotjs, SiExpress, SiMongodb, SiPostgresql, SiPython, SiDjango, SiGraphql, SiGit, SiDocker, SiVercel, SiFigma, SiLinux } from 'react-icons/si';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import SectionBackground from './SectionBackground';
 import { ANIMATION_VARIANTS } from '../utils/constants';
+
+const SKILL_ICON_MAP = {
+  'React':       { Icon: SiReact,       color: '#61DAFB' },
+  'JavaScript':  { Icon: SiJavascript,  color: '#F7DF1E' },
+  'TypeScript':  { Icon: SiTypescript,  color: '#3178C6' },
+  'HTML/CSS':    { Icon: SiHtml5,       color: '#E34F26' },
+  'Tailwind CSS':{ Icon: SiTailwindcss, color: '#06B6D4' },
+  'Next.js':     { Icon: SiNextdotjs,   color: '#000000' },
+  'Vue.js':      { Icon: SiVuedotjs,    color: '#4FC08D' },
+  'SASS/SCSS':   { Icon: SiSass,        color: '#CC6699' },
+  'Node.js':     { Icon: SiNodedotjs,   color: '#339933' },
+  'Express.js':  { Icon: SiExpress,     color: '#404040' },
+  'MongoDB':     { Icon: SiMongodb,     color: '#47A248' },
+  'PostgreSQL':  { Icon: SiPostgresql,  color: '#4169E1' },
+  'Python':      { Icon: SiPython,      color: '#3776AB' },
+  'Django':      { Icon: SiDjango,      color: '#092E20' },
+  'REST APIs':   { Icon: FaCode,        color: '#6366F1' },
+  'GraphQL':     { Icon: SiGraphql,     color: '#E10098' },
+  'Git':         { Icon: SiGit,         color: '#F05032' },
+  'Docker':      { Icon: SiDocker,      color: '#2496ED' },
+  'AWS':         { Icon: FaCloud,       color: '#FF9900' },
+  'Vercel':      { Icon: SiVercel,      color: '#000000' },
+  'Figma':       { Icon: SiFigma,       color: '#F24E1E' },
+  'VS Code':     { Icon: FaCode,        color: '#007ACC' },
+  'Linux':       { Icon: SiLinux,       color: '#FCC624' },
+  'CI/CD':       { Icon: FaTools,       color: '#6366F1' },
+};
 
 // Simplified Skills Display (No 3D)
 const SkillsDisplay = React.memo(() => {
@@ -55,20 +83,15 @@ const SkillBubble = React.memo(({ skill, index, isActive }) => {
     >
       {/* Skill Bubble */}
       <motion.div
-        className={`w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold shadow-xl transition-all duration-300 ${
-          isActive ? 'scale-110 shadow-2xl' : ''
-        }`}
-        style={{ 
-          backgroundColor: skill.color,
-          color: ['#F7DF1E', '#61DAFB', '#ffffff', '#FFD700'].includes(skill.color) ? '#1e293b' : '#ffffff'
-        }}
-        animate={{
-          scale: isHovered ? 1.2 : isActive ? 1.1 : 1,
-          rotate: isHovered ? 360 : 0,
-        }}
+        className={`w-24 h-24 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 ${isActive ? 'scale-110 shadow-2xl' : ''}`}
+        style={{ backgroundColor: skill.color }}
+        animate={{ scale: isHovered ? 1.2 : isActive ? 1.1 : 1, rotate: isHovered ? 360 : 0 }}
         transition={{ duration: 0.3 }}
       >
-        {skill.icon}
+        {skill.Icon
+          ? <skill.Icon className="w-10 h-10" style={{ color: ['#F7DF1E','#61DAFB','#FCC624'].includes(skill.color) ? '#1e293b' : '#ffffff' }} />
+          : <span className="text-2xl">{skill.icon}</span>
+        }
       </motion.div>
 
       {/* Skill Name */}
@@ -146,7 +169,12 @@ const SkillCategory = React.memo(({ title, icon: Icon, skills, color, bgColor, i
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <span className="text-2xl">{skill.icon}</span>
+                {(() => {
+                  const mapped = SKILL_ICON_MAP[skill.name];
+                  return mapped
+                    ? <mapped.Icon className="w-6 h-6" style={{ color: mapped.color }} />
+                    : <span className="text-2xl">{skill.icon}</span>;
+                })()}
                 <span className="font-semibold text-dark-700 dark:text-dark-300 text-lg">
                   {skill.name}
                 </span>
@@ -189,12 +217,12 @@ const SkillsOverview = React.memo(() => {
   const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
 
   const skills = [
-    { name: 'React', level: 95, color: '#61DAFB', icon: '⚛️' },
-    { name: 'Node.js', level: 90, color: '#68A063', icon: '🟢' },
-    { name: 'MongoDB', level: 88, color: '#47A248', icon: '🍃' },
-    { name: 'JavaScript', level: 95, color: '#F7DF1E', icon: '🟡' },
-    { name: 'TypeScript', level: 85, color: '#3178C6', icon: '🔷' },
-    { name: 'Python', level: 75, color: '#3776AB', icon: '🐍' },
+    { name: 'React',      level: 95, color: '#61DAFB', Icon: SiReact },
+    { name: 'Node.js',    level: 90, color: '#68A063', Icon: SiNodedotjs },
+    { name: 'MongoDB',    level: 88, color: '#47A248', Icon: SiMongodb },
+    { name: 'JavaScript', level: 95, color: '#F7DF1E', Icon: SiJavascript },
+    { name: 'TypeScript', level: 85, color: '#3178C6', Icon: SiTypescript },
+    { name: 'Python',     level: 75, color: '#3776AB', Icon: SiPython },
   ];
 
   return (
@@ -234,12 +262,12 @@ const SkillsOverview = React.memo(() => {
       {/* Skills Stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
         {[
-          { label: 'Frontend', value: '95%', color: 'text-blue-500', icon: '🎨' },
-          { label: 'Backend', value: '90%', color: 'text-green-500', icon: '⚙️' },
-          { label: 'Database', value: '88%', color: 'text-purple-500', icon: '🗄️' },
-          { label: 'DevOps', value: '75%', color: 'text-orange-500', icon: '🚀' },
-          { label: 'Mobile', value: '70%', color: 'text-pink-500', icon: '📱' },
-          { label: 'AI/ML', value: '65%', color: 'text-indigo-500', icon: '🤖' },
+          { label: 'Frontend',  value: '95%', color: 'text-blue-500',   Icon: FaCode },
+          { label: 'Backend',   value: '90%', color: 'text-green-500',  Icon: FaServer },
+          { label: 'Database',  value: '88%', color: 'text-purple-500', Icon: FaDatabase },
+          { label: 'DevOps',    value: '75%', color: 'text-orange-500', Icon: FaTools },
+          { label: 'Mobile',    value: '70%', color: 'text-pink-500',   Icon: FaMobileAlt },
+          { label: 'AI/ML',     value: '65%', color: 'text-indigo-500', Icon: FaBrain },
         ].map((item, index) => (
           <motion.div
             key={item.label}
@@ -252,11 +280,11 @@ const SkillsOverview = React.memo(() => {
             style={{ y: y }}
           >
             <motion.div
-              className="text-4xl mb-3"
+              className={`flex justify-center mb-3 ${item.color}`}
               whileHover={{ scale: 1.2, rotate: 10 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              {item.icon}
+              <item.Icon className="w-9 h-9" />
             </motion.div>
             <div className={`text-3xl font-bold ${item.color} mb-2 font-heading`}>
               {item.value}

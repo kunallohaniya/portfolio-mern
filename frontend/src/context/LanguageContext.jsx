@@ -3,7 +3,7 @@
  * Supports English and Hindi with optional Bhashini API integration
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import enTranslations from '../i18n/en.json';
 import hiTranslations from '../i18n/hi.json';
 
@@ -42,7 +42,7 @@ export const LanguageProvider = ({ children }) => {
     document.documentElement.lang = language;
     
     // Update document direction (RTL for Hindi, LTR for English)
-    document.documentElement.dir = language === 'hi' ? 'ltr' : 'ltr';
+    document.documentElement.dir = 'ltr';
     // Note: Hindi is LTR, but if you add Arabic/Urdu, use 'rtl'
   }, [language]);
 

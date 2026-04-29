@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaGithub, FaExternalLinkAlt, FaTimes, FaFilter, FaCode, FaEye, FaRocket, FaStar, FaHeart, FaCalendarAlt, FaTag } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaTimes, FaFilter, FaCode, FaEye, FaRocket, FaStar, FaHeart, FaCalendarAlt, FaTag, FaChartLine, FaLayerGroup, FaUsers } from 'react-icons/fa';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import SectionBackground from './SectionBackground';
 import { ANIMATION_VARIANTS } from '../utils/constants';
@@ -83,18 +83,18 @@ const ProjectModal = ({ project, isOpen, onClose }) => {
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="text-center">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  >
+                {project.image ? (
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover rounded-2xl"
+                  />
+                ) : (
+                  <div className="text-center">
                     <FaRocket className="w-20 h-20 text-primary-500 mx-auto mb-4" />
-                  </motion.div>
-                  <p className="text-dark-600 dark:text-dark-300 font-medium">
-                    Interactive Project Preview
-                  </p>
-                </div>
-                
+                    <p className="text-dark-600 dark:text-dark-300 font-medium">Interactive Project Preview</p>
+                  </div>
+                )}
                 {/* Premium Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </motion.div>
@@ -213,28 +213,24 @@ const ProjectCard = ({ project, index }) => {
       >
         {/* Premium Project Image */}
         <div className="aspect-video bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/20 dark:to-secondary-900/20 flex items-center justify-center relative overflow-hidden">
-          <motion.div
-            className="text-center"
-            whileHover={{ scale: 1.1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <FaCode className="w-16 h-16 text-primary-500 mx-auto mb-4" />
-            <p className="text-dark-600 dark:text-dark-300 font-medium">
-              {project.title}
-            </p>
-          </motion.div>
-          
+          {project.image ? (
+            <img
+              src={project.image}
+              alt={project.title}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <motion.div className="text-center" whileHover={{ scale: 1.1 }} transition={{ duration: 0.3 }}>
+              <FaCode className="w-16 h-16 text-primary-500 mx-auto mb-4" />
+              <p className="text-dark-600 dark:text-dark-300 font-medium">{project.title}</p>
+            </motion.div>
+          )}
           {/* Premium Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="p-4 glass-premium rounded-full text-white hover:bg-white/20 transition-colors duration-300"
-            >
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="p-4 glass-premium rounded-full text-white hover:bg-white/20 transition-colors duration-300">
               <FaEye className="w-6 h-6" />
             </motion.div>
           </div>
-
           {/* Premium Badge */}
           {project.featured && (
             <div className="absolute top-4 right-4">
@@ -426,10 +422,10 @@ const Projects = () => {
           className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20"
         >
           {[
-            { label: 'Projects Completed', value: '50+', icon: '🚀' },
-            { label: 'Technologies Used', value: '25+', icon: '⚡' },
-            { label: 'Happy Clients', value: '30+', icon: '😊' },
-            { label: 'Years Experience', value: '5+', icon: '📈' },
+            { label: 'Projects Completed', value: '5+', Icon: FaRocket },
+            { label: 'Technologies Used', value: '15+', Icon: FaLayerGroup },
+            { label: 'Happy Clients', value: '5+', Icon: FaUsers },
+            { label: 'Years Experience', value: '1+', Icon: FaChartLine },
           ].map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -441,11 +437,11 @@ const Projects = () => {
               className="text-center p-6 rounded-2xl glass-premium border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-300 group"
             >
               <motion.div
-                className="text-4xl mb-3"
+                className="flex justify-center mb-3"
                 whileHover={{ scale: 1.2, rotate: 10 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
-                {stat.icon}
+                <stat.Icon className="w-9 h-9 text-primary-500" />
               </motion.div>
               <div className="text-3xl font-bold gradient-text-premium mb-2 font-heading">
                 {stat.value}
