@@ -1,192 +1,251 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaBars, FaTimes, FaMoon, FaSun } from 'react-icons/fa';
 import { usePortfolioData } from '../hooks/usePortfolioData';
+import { useTheme } from '../context/ThemeContext';
+import { RiSunLine, RiMoonLine } from 'react-icons/ri';
 
-const Navbar = () => {
-  const { getNavItems } = usePortfolioData();
-  const navItems = getNavItems();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+const NAV_ITEMS = [
+  { id: 'home',     label: 'Home' },
+  { id: 'about',    label: 'About' },
+  { id: 'skills',   label: 'Skills' },
+  { id: 'projects', label: 'Work' },
+  { id: 'contact',  label: 'Contact' },
+];
 
+const Navbar = ({ onOpenCommand }) => {
+  const [scrolled, setScrolled]   = useState(false);
+  const [activeId, setActiveId]   = useState('home');
+  const [menuOpen, setMenuOpen]   = useState(false);
+  const { theme, setThemeMode } = useTheme();
+  const [themeBtnHovered, setThemeBtnHovered] = useState(false);
+
+  const handleThemeToggle = () => {
+    setThemeMode(theme === 'light' ? 'dark' : 'light');
+  };
+
+  // Track scroll for border and active section
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      setScrolled(window.scrollY > 80);
+
+      // Determine active section
+      const sections = NAV_ITEMS.map(item => document.getElementById(item.id)).filter(Boolean);
+      let current = 'home';
+      sections.forEach(section => {
+        if (window.scrollY >= section.offsetTop - 120) {
+          current = section.id;
+        }
+      });
+      setActiveId(current);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close mobile menu on resize
   useEffect(() => {
-    // Check for saved theme preference or default to light mode
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setIsDarkMode(savedTheme === 'dark');
-    } else {
-      setIsDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
-    }
+    const onResize = () => { if (window.innerWidth >= 768) setMenuOpen(false); };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  useEffect(() => {
-    // Apply theme to document
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-  }, [isDarkMode]);
-
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
+  const scrollTo = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    setMenuOpen(false);
   };
 
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-    setIsMenuOpen(false);
-  };
+  const scrollToContact = () => scrollTo('contact');
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'glass-premium border-b border-white/20 dark:border-white/10 shadow-xl'
-          : 'bg-transparent'
-      }`}
+    <header
+      className={`navbar-base${scrolled ? ' navbar-scrolled' : ''}`}
+      style={{ transition: 'border-color 0.3s ease' }}
     >
-      <div className="container-premium">
-        <div className="flex items-center justify-between h-16 py-2">
-          {/* Logo */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="text-2xl font-bold gradient-text-premium cursor-pointer flex-shrink-0"
-            onClick={() => scrollToSection('home')}
+      <div className="container-editorial" style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+
+        {/* Logotype */}
+        <button
+          className="nav-link"
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '1.1rem',
+            fontWeight: 700,
+            letterSpacing: '-0.01em',
+            textTransform: 'none',
+            color: 'var(--offwhite)',
+            background: 'none',
+            border: 'none',
+            padding: 0,
+          }}
+          onClick={() => scrollTo('home')}
+        >
+          KL<span style={{ color: 'var(--amber)' }}>.</span>
+        </button>
+
+        {/* Desktop nav */}
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 32 }} className="hidden-mobile">
+          {NAV_ITEMS.map(item => (
+            <button
+              key={item.id}
+              className={`nav-link${activeId === item.id ? ' active' : ''}`}
+              style={{ background: 'none', border: 'none' }}
+              onClick={() => scrollTo(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* Right cluster */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }} className="hidden-mobile">
+          {/* Availability badge */}
+          <button
+            className="availability-badge"
+            onClick={scrollToContact}
+            title="Click to get in touch"
+            style={{ background: 'none', border: '1px solid rgba(34,197,94,0.3)' }}
           >
-            Portfolio
-          </motion.div>
+            <span className="availability-dot" />
+            Available for work
+          </button>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-2 lg:space-x-6">
-            {navItems.map((item, index) => (
-              <motion.button
-                key={item.id}
-                onClick={() => scrollToSection(item.id)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="text-gray-800 dark:text-slate-100 hover:text-primary-600 dark:hover:text-violet-400 font-medium transition-colors duration-300 px-2 lg:px-3 py-2 text-sm lg:text-base whitespace-nowrap"
-              >
-                {item.label}
-              </motion.button>
-            ))}
-          </div>
+          {/* Ctrl+K hint */}
+          <button
+            onClick={onOpenCommand}
+            style={{
+              background: 'none',
+              border: '1px solid var(--border-std)',
+              color: 'var(--muted)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.65rem',
+              letterSpacing: '0.1em',
+              padding: '4px 10px',
+              cursor: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              transition: 'border-color 0.2s ease, color 0.2s ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--amber)'; e.currentTarget.style.color = 'var(--amber)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-std)'; e.currentTarget.style.color = 'var(--muted)'; }}
+            title="Open command palette"
+          >
+            <span>⌘K</span>
+          </button>
 
-          {/* Theme Toggle & Mobile Menu Button */}
-          <div className="flex items-center space-x-3 flex-shrink-0">
-            <motion.button
-              onClick={toggleTheme}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="p-2 rounded-full glass-premium border border-white/20 dark:border-white/20 text-gray-800 dark:text-slate-100 hover:text-primary-600 dark:hover:text-violet-400 transition-colors duration-300"
-              aria-label="Toggle theme"
-            >
-              <AnimatePresence mode="wait">
-                {isDarkMode ? (
-                  <motion.div
-                    key="sun"
-                    initial={{ rotate: -180, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 180, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <FaSun className="w-5 h-5" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="moon"
-                    initial={{ rotate: -180, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 180, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <FaMoon className="w-5 h-5" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
-
-            {/* Mobile Menu Button */}
-            <motion.button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="md:hidden p-2 rounded-full glass-premium border border-white/20 dark:border-white/20 text-gray-800 dark:text-slate-100 hover:text-primary-600 dark:hover:text-violet-400 transition-colors duration-300"
-              aria-label="Toggle menu"
-            >
-              <AnimatePresence mode="wait">
-                {isMenuOpen ? (
-                  <motion.div
-                    key="close"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <FaTimes className="w-5 h-5" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="menu"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <FaBars className="w-5 h-5" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
-          </div>
+          {/* Theme Toggle Button */}
+          <button
+            onClick={handleThemeToggle}
+            onMouseEnter={() => setThemeBtnHovered(true)}
+            onMouseLeave={() => setThemeBtnHovered(false)}
+            style={{
+              background: 'none',
+              borderRadius: '0',
+              border: '1px solid ' + (themeBtnHovered ? 'var(--amber)' : 'var(--border-std)'),
+              color: themeBtnHovered ? 'var(--amber)' : 'var(--muted)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              letterSpacing: '0.1em',
+              padding: '4px 10px',
+              cursor: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'border-color 150ms ease, color 150ms ease',
+              textTransform: 'uppercase',
+            }}
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+          >
+            {theme === 'light' ? (
+              <RiSunLine style={{ width: 14, height: 14 }} />
+            ) : (
+              <RiMoonLine style={{ width: 14, height: 14 }} />
+            )}
+            <span>{theme === 'light' ? 'LIGHT' : 'DARK'}</span>
+          </button>
         </div>
 
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="md:hidden glass-premium rounded-2xl border border-white/20 dark:border-white/10 shadow-xl mt-4 overflow-hidden"
-            >
-              <div className="p-6 space-y-4">
-                {navItems.map((item, index) => (
-                  <motion.button
-                    key={item.id}
-                    onClick={() => scrollToSection(item.id)}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.02, x: 10 }}
-                    className="w-full text-left text-gray-800 dark:text-slate-100 hover:text-primary-600 dark:hover:text-violet-400 font-medium py-2 transition-colors duration-300"
-                  >
-                    {item.label}
-                  </motion.button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Mobile hamburger */}
+        <button
+          className="show-mobile"
+          onClick={() => setMenuOpen(!menuOpen)}
+          style={{
+            background: 'none',
+            border: '1px solid var(--border-std)',
+            color: 'var(--offwhite)',
+            padding: '6px 10px',
+            cursor: 'none',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.8rem',
+            letterSpacing: '0.1em',
+          }}
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? '✕' : '☰'}
+        </button>
       </div>
-    </motion.nav>
+
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: [0.76, 0, 0.24, 1] }}
+            style={{
+              background: 'var(--surface)',
+              borderTop: '1px solid var(--border-std)',
+              overflow: 'hidden',
+            }}
+          >
+            <div className="container-editorial" style={{ paddingTop: 20, paddingBottom: 20 }}>
+              {NAV_ITEMS.map((item, i) => (
+                <motion.button
+                  key={item.id}
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className={`nav-link${activeId === item.id ? ' active' : ''}`}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
+                    background: 'none',
+                    border: 'none',
+                    padding: '10px 0',
+                    fontSize: '0.85rem',
+                  }}
+                  onClick={() => scrollTo(item.id)}
+                >
+                  {item.label}
+                </motion.button>
+              ))}
+
+              {/* Mobile availability */}
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border-dim)' }}>
+                <button className="availability-badge" onClick={scrollToContact} style={{ background: 'none' }}>
+                  <span className="availability-dot" />
+                  Available for work
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Responsive helpers (inline — avoids Tailwind config dependency) */}
+      <style>{`
+        .hidden-mobile { display: flex; }
+        .show-mobile { display: none; }
+        @media (max-width: 767px) {
+          .hidden-mobile { display: none !important; }
+          .show-mobile { display: block !important; }
+        }
+      `}</style>
+    </header>
   );
 };
 

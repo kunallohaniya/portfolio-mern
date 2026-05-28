@@ -11,7 +11,7 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState('dark'); // :root tokens are dark — match default to prevent flash
 
   // Apply theme class to document root
   useEffect(() => {

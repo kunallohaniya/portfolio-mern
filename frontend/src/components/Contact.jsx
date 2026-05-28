@@ -1,87 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaPaperPlane, FaMapMarkerAlt, FaPhone, FaEnvelope, FaGithub, FaLinkedin, FaTwitter, FaInstagram, FaRocket, FaHeart, FaCheck, FaSpinner } from 'react-icons/fa';
+import React, { useState, useRef } from 'react';
 import { toast } from 'react-hot-toast';
 import { usePortfolioData } from '../hooks/usePortfolioData';
-import { ANIMATION_VARIANTS } from '../utils/constants';
-
-// Removed: contactAPI and ReCAPTCHA imports (Requirement 1 & 2)
-
-// Premium Paper Plane Animation Component
-const PaperPlaneAnimation = React.memo(({ isFlying }) => {
-  return (
-    <AnimatePresence>
-      {isFlying && (
-        <motion.div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20"
-          initial={{ opacity: 1, scale: 1 }}
-          animate={{
-            x: [0, 100, 200, 300],
-            y: [0, -50, -100, -150],
-            rotate: [0, 15, 30, 45],
-            scale: [1, 1.2, 1.5, 0.5],
-            opacity: [1, 1, 1, 0]
-          }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 2.5, ease: "easeOut" }}
-        >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 0.5, repeat: Infinity, ease: "linear" }}
-          >
-            <FaPaperPlane className="w-12 h-12 text-primary-500 drop-shadow-lg" />
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-});
-
-PaperPlaneAnimation.displayName = 'PaperPlaneAnimation';
-
-// Premium Floating Background Icons Component
-const FloatingIcons = React.memo(() => {
-  const icons = [
-    { Icon: FaEnvelope, delay: 0, position: { top: '10%', left: '10%' } },
-    { Icon: FaPhone, delay: 0.5, position: { top: '20%', right: '15%' } },
-    { Icon: FaMapMarkerAlt, delay: 1, position: { bottom: '20%', left: '20%' } },
-    { Icon: FaRocket, delay: 1.5, position: { bottom: '10%', right: '10%' } },
-  ];
-
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {icons.map(({ Icon, delay, position }, index) => (
-        <motion.div
-          key={index}
-          className="absolute text-primary-500/20 dark:text-primary-400/20"
-          style={position}
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ 
-            opacity: [0.2, 0.4, 0.2],
-            scale: [1, 1.2, 1],
-            rotate: [0, 360]
-          }}
-          transition={{ 
-            duration: 4,
-            delay: delay,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <Icon className="w-8 h-8" />
-        </motion.div>
-      ))}
-    </div>
-  );
-});
-
-FloatingIcons.displayName = 'FloatingIcons';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 // Premium Contact Form Component
 const ContactForm = React.memo(() => {
-  const { getContactData } = usePortfolioData();
-  const contactData = getContactData();
-  
+  const recaptchaRef = useRef(null);
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -89,13 +14,25 @@ const ContactForm = React.memo(() => {
     message: ''
   });
 
-  // Removed: recaptchaToken state (Requirement 2)
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isFlying, setIsFlying] = useState(false);
-  const [focusedField, setFocusedField] = useState(null);
   const [errors, setErrors] = useState({});
+  const [rateLimitError, setRateLimitError] = useState(() => {
+    try {
+      const stored = localStorage.getItem("portfolio_contact_log");
+      if (stored) {
+        const log = JSON.parse(stored);
+        const twentyFourHoursAgo = new Date().getTime() - 24 * 60 * 60 * 1000;
+        const filtered = log.filter(timestamp => new Date(timestamp).getTime() > twentyFourHoursAgo);
+        if (filtered.length >= 5) {
+          return '[ RATE LIMIT ] — 5 messages already transmitted in the last 24h. Try again tomorrow.';
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return '';
+  });
 
-  // Validation rules (Requirement 8 - Keep unchanged)
   const validateForm = () => {
     const newErrors = {};
 
@@ -104,8 +41,6 @@ const ContactForm = React.memo(() => {
       newErrors.name = 'Name is required';
     } else if (nameTrimmed.length < 2) {
       newErrors.name = 'Name must be at least 2 characters';
-    } else if (nameTrimmed.length > 50) {
-      newErrors.name = 'Name must not exceed 50 characters';
     }
 
     const emailTrimmed = formData.email.trim();
@@ -119,19 +54,11 @@ const ContactForm = React.memo(() => {
     const subjectTrimmed = formData.subject.trim();
     if (!subjectTrimmed) {
       newErrors.subject = 'Subject is required';
-    } else if (subjectTrimmed.length < 5) {
-      newErrors.subject = 'Subject must be at least 5 characters';
-    } else if (subjectTrimmed.length > 100) {
-      newErrors.subject = 'Subject must not exceed 100 characters';
     }
 
     const messageTrimmed = formData.message.trim();
     if (!messageTrimmed) {
       newErrors.message = 'Message is required';
-    } else if (messageTrimmed.length < 10) {
-      newErrors.message = 'Message must be at least 10 characters';
-    } else if (messageTrimmed.length > 1000) {
-      newErrors.message = 'Message must not exceed 1000 characters';
     }
 
     setErrors(newErrors);
@@ -155,282 +82,214 @@ const ContactForm = React.memo(() => {
       toast.error('Please fix the errors in the form before submitting.');
       return;
     }
+
+    // Rate Limiting Logic Check
+    let contactLog = [];
+    try {
+      const stored = localStorage.getItem("portfolio_contact_log");
+      if (stored) {
+        contactLog = JSON.parse(stored);
+      }
+    } catch (err) {
+      console.error("Error reading rate limit log:", err);
+    }
+
+    const now = new Date();
+    const twentyFourHoursAgo = now.getTime() - 24 * 60 * 60 * 1000;
+    const filteredLog = contactLog.filter(timestamp => {
+      const time = new Date(timestamp).getTime();
+      return time > twentyFourHoursAgo;
+    });
+
+    if (filteredLog.length >= 5) {
+      setRateLimitError('[ RATE LIMIT ] — 5 messages already transmitted in the last 24h. Try again tomorrow.');
+      toast.error('Submission blocked: Rate limit exceeded.');
+      return;
+    }
+
+    if (!recaptchaToken) {
+      toast.error('Please complete the reCAPTCHA verification to prove you are a human.');
+      return;
+    }
     
     setIsSubmitting(true);
 
     try {
-      // Netlify Form Submission logic (Requirement 5)
-      const formDataEncoded = new URLSearchParams({
-        "form-name": "contact",
-        ...formData
-      }).toString();
-
-      await fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: formDataEncoded
+      const response = await fetch('/.netlify/functions/sendMail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          recaptchaToken
+        })
       });
-      
-      // Success handling (Requirement 6 & 7)
-      toast.success('Message sent successfully! I\'ll get back to you soon.');
+
+      const rawBody = await response.text();
+      let result = {};
+      try {
+        result = rawBody ? JSON.parse(rawBody) : {};
+      } catch {
+        result = {};
+      }
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Function route not found. Run this app with Netlify Dev so /.netlify/functions is available.');
+        }
+        if (response.status === 429) {
+          setRateLimitError(result.error);
+          toast.error('Submission blocked: Rate limit exceeded.');
+          return;
+        }
+        throw new Error(result.error || 'Transmission failed.');
+      }
+
+      const finalLog = [...filteredLog, new Date().toISOString()];
+      localStorage.setItem('portfolio_contact_log', JSON.stringify(finalLog));
+
+      toast.success('[ TRANSMITTED ] — Message received. A confirmation has been dispatched to your inbox.');
       setFormData({ name: '', email: '', subject: '', message: '' });
       setErrors({});
-      setIsFlying(true);
-      
-      setTimeout(() => {
-        setIsFlying(false);
-      }, 2500);
+      if (recaptchaRef.current) recaptchaRef.current.reset();
+      setRecaptchaToken(null);
+      setRateLimitError('');
+
     } catch (error) {
-      // Simplified error handling (Requirement 7)
-      console.error(error);
-      toast.error("Failed to send message. Please try again.");
+      console.error('Transmission failed:', error);
+      toast.error('[ ERROR ] — Transmission failed. Please retry or reach out directly via email.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="glass-premium p-10 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl relative overflow-hidden min-h-[600px]">
-      <FloatingIcons />
-      <PaperPlaneAnimation isFlying={isFlying} />
+    <div className="p-8 border border-[var(--border-std)] bg-[var(--surface)]">
+      <h3 className="text-xl font-bold text-[var(--offwhite)] mb-8 font-display uppercase tracking-wider">
+        TRANSMIT DISPATCH //
+      </h3>
       
-      <motion.div
-        initial={{ opacity: 0.01, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.1 }}
-        transition={{ duration: 0.6 }}
-        className="relative z-10"
+      <form 
+        name="contact"
+        method="POST"
+        onSubmit={handleSubmit} 
+        className="space-y-6" 
+        noValidate
       >
-        <h3 className="text-3xl font-bold text-dark-800 dark:text-white mb-8 font-heading">
-          Send me a message
-        </h3>
-        
-        {/* Netlify Form Tag - Name attribute is sufficient for AJAX submission detection */}
-        <form 
-          name="contact"
-          method="POST"
-          data-netlify-honeypot="bot-field"
-          onSubmit={handleSubmit} 
-          className="space-y-8" 
-          noValidate
-        >
-          {/* Hidden Fields (Requirement 4) */}
-          <input type="hidden" name="form-name" value="contact" />
-          <input type="hidden" name="bot-field" />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-            >
-              <label htmlFor="name" className="block text-sm font-semibold text-dark-700 dark:text-dark-300 mb-3">
-                Full Name * {formData.name.length > 0 && (
-                  <span className="text-xs font-normal text-dark-500">({formData.name.length}/50)</span>
-                )}
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  onFocus={() => setFocusedField('name')}
-                  onBlur={() => {
-                    setFocusedField(null);
-                    validateForm();
-                  }}
-                  required
-                  className={`w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none ${
-                    errors.name
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
-                      : focusedField === 'name'
-                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                      : 'border-white/20 dark:border-white/10 bg-white/50 dark:bg-dark-800/50'
-                  }`}
-                  placeholder="Enter your full name"
-                />
-                {errors.name && (
-                  <p className="mt-1 text-sm text-red-500">{errors.name}</p>
-                )}
-                <motion.div
-                  className="absolute inset-0 rounded-xl border-2 border-primary-500 opacity-0 pointer-events-none"
-                  animate={{ opacity: focusedField === 'name' ? 0.3 : 0 }}
-                  transition={{ duration: 0.2 }}
-                />
-              </div>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
-              <label htmlFor="email" className="block text-sm font-semibold text-dark-700 dark:text-dark-300 mb-3">
-                Email Address *
-              </label>
-              <div className="relative">
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  onFocus={() => setFocusedField('email')}
-                  onBlur={() => {
-                    setFocusedField(null);
-                    validateForm();
-                  }}
-                  required
-                  className={`w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none ${
-                    errors.email
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
-                      : focusedField === 'email'
-                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                      : 'border-white/20 dark:border-white/10 bg-white/50 dark:bg-dark-800/50'
-                  }`}
-                  placeholder="Enter your email address"
-                />
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-                )}
-                <motion.div
-                  className="absolute inset-0 rounded-xl border-2 border-primary-500 opacity-0 pointer-events-none"
-                  animate={{ opacity: focusedField === 'email' ? 0.3 : 0 }}
-                  transition={{ duration: 0.2 }}
-                />
-              </div>
-            </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="font-mono text-xs">
+            <label htmlFor="name" className="block text-[var(--muted)] mb-2 uppercase tracking-wider">
+              NAME *
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              onBlur={validateForm}
+              required
+              className="w-full px-4 py-3 bg-[var(--base)] text-[var(--offwhite)] border border-[var(--border-dim)] outline-none focus:border-[var(--amber)] transition-colors duration-250 cursor-none"
+              placeholder="YOUR NAME"
+            />
+            {errors.name && <p className="mt-1 text-[var(--alert)]">{errors.name}</p>}
           </div>
           
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-          >
-            <label htmlFor="subject" className="block text-sm font-semibold text-dark-700 dark:text-dark-300 mb-3">
-              Subject * {formData.subject.length > 0 && (
-                <span className="text-xs font-normal text-dark-500">({formData.subject.length}/100)</span>
-              )}
+          <div className="font-mono text-xs">
+            <label htmlFor="email" className="block text-[var(--muted)] mb-2 uppercase tracking-wider">
+              EMAIL ADDRESS *
             </label>
-            <div className="relative">
-              <input
-                type="text"
-                id="subject"
-                name="subject"
-                value={formData.subject}
-                onChange={handleChange}
-                onFocus={() => setFocusedField('subject')}
-                onBlur={() => {
-                  setFocusedField(null);
-                  validateForm();
-                }}
-                required
-                className={`w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none ${
-                  errors.subject
-                    ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
-                    : focusedField === 'subject'
-                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                    : 'border-white/20 dark:border-white/10 bg-white/50 dark:bg-dark-800/50'
-                }`}
-                placeholder="What is this about?"
-              />
-              {errors.subject && (
-                <p className="mt-1 text-sm text-red-500">{errors.subject}</p>
-              )}
-              <motion.div
-                className="absolute inset-0 rounded-xl border-2 border-primary-500 opacity-0 pointer-events-none"
-                animate={{ opacity: focusedField === 'subject' ? 0.3 : 0 }}
-                transition={{ duration: 0.2 }}
-              />
-            </div>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-          >
-            <label htmlFor="message" className="block text-sm font-semibold text-dark-700 dark:text-dark-300 mb-3">
-              Message * {formData.message.length > 0 && (
-                <span className="text-xs font-normal text-dark-500">({formData.message.length}/1000)</span>
-              )}
-            </label>
-            <div className="relative">
-              <textarea
-                id="message"
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                onFocus={() => setFocusedField('message')}
-                onBlur={() => {
-                  setFocusedField(null);
-                  validateForm();
-                }}
-                required
-                rows={6}
-                className={`w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none resize-none ${
-                  errors.message
-                    ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
-                    : focusedField === 'message'
-                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                    : 'border-white/20 dark:border-white/10 bg-white/50 dark:bg-dark-800/50'
-                }`}
-                placeholder="Tell me about your project or just say hello!"
-              />
-              {errors.message && (
-                <p className="mt-1 text-sm text-red-500">{errors.message}</p>
-              )}
-              <motion.div
-                className="absolute inset-0 rounded-xl border-2 border-primary-500 opacity-0 pointer-events-none"
-                animate={{ opacity: focusedField === 'message' ? 0.3 : 0 }}
-                transition={{ duration: 0.2 }}
-              />
-            </div>
-          </motion.div>
-          
-          {/* Removed: Google reCAPTCHA Component (Requirement 2) */}
-
-          <motion.button
-            type="submit"
-            disabled={isSubmitting}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="btn-glow w-full flex items-center justify-center gap-3 py-5 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.5 }}
-          >
-            {isSubmitting ? (
-              <>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
-                />
-                Sending Message...
-              </>
-            ) : (
-              <>
-                <FaPaperPlane className="w-6 h-6" />
-                Send Message
-              </>
-            )}
-            <motion.div
-              className="absolute inset-0 bg-white/20"
-              initial={{ x: '-100%' }}
-              whileHover={{ x: '0%' }}
-              transition={{ duration: 0.3 }}
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              onBlur={validateForm}
+              required
+              className="w-full px-4 py-3 bg-[var(--base)] text-[var(--offwhite)] border border-[var(--border-dim)] outline-none focus:border-[var(--amber)] transition-colors duration-250 cursor-none"
+              placeholder="YOUR EMAIL"
             />
-          </motion.button>
-        </form>
-      </motion.div>
+            {errors.email && <p className="mt-1 text-[var(--alert)]">{errors.email}</p>}
+          </div>
+        </div>
+        
+        <div className="font-mono text-xs">
+          <label htmlFor="subject" className="block text-[var(--muted)] mb-2 uppercase tracking-wider">
+            SUBJECT *
+          </label>
+          <input
+            type="text"
+            id="subject"
+            name="subject"
+            value={formData.subject}
+            onChange={handleChange}
+            onBlur={validateForm}
+            required
+            className="w-full px-4 py-3 bg-[var(--base)] text-[var(--offwhite)] border border-[var(--border-dim)] outline-none focus:border-[var(--amber)] transition-colors duration-250 cursor-none"
+            placeholder="SUBJECT HEADING"
+          />
+          {errors.subject && <p className="mt-1 text-[var(--alert)]">{errors.subject}</p>}
+        </div>
+        
+        <div className="font-mono text-xs">
+          <label htmlFor="message" className="block text-[var(--muted)] mb-2 uppercase tracking-wider">
+            MESSAGE *
+          </label>
+          <textarea
+            id="message"
+            name="message"
+            value={formData.message}
+            onChange={handleChange}
+            onBlur={validateForm}
+            required
+            rows={5}
+            className="w-full px-4 py-3 bg-[var(--base)] text-[var(--offwhite)] border border-[var(--border-dim)] outline-none focus:border-[var(--amber)] transition-colors duration-250 resize-none cursor-none"
+            placeholder="TYPE DISPATCH DETAILS HERE..."
+          />
+          {errors.message && <p className="mt-1 text-[var(--alert)]">{errors.message}</p>}
+        </div>
+
+        {/* Google reCAPTCHA Verification */}
+        <div style={{ display: 'flex', justifyContent: 'center', margin: '24px 0 12px 0' }}>
+          <ReCAPTCHA
+            ref={recaptchaRef}
+            sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LeVEbssAAAAACgk-tSlCCMESdNoVDRecI6_y-11"}
+            onChange={(token) => setRecaptchaToken(token)}
+            onExpired={() => setRecaptchaToken(null)}
+            theme="dark"
+          />
+        </div>
+
+        {/* Rate Limiting Error Inline Display */}
+        {rateLimitError && (
+          <div 
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              color: 'var(--amber)',
+              border: '1px solid var(--amber)',
+              padding: '12px',
+              textAlign: 'center',
+              margin: '16px 0',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}
+          >
+            {rateLimitError}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="btn-primary w-full justify-center disabled:opacity-50 cursor-none"
+        >
+          {isSubmitting ? 'TRANSMITTING...' : 'TRANSMIT MESSAGE'}
+        </button>
+      </form>
     </div>
   );
 });
@@ -443,139 +302,41 @@ const ContactInfo = React.memo(() => {
   const personalInfo = getPersonalInfo();
   const socialLinks = getSocialLinks();
 
-  const contactItems = [
-    {
-      icon: FaMapMarkerAlt,
-      title: 'Location',
-      value: personalInfo.location,
-      color: 'text-blue-500',
-      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-    },
-    {
-      icon: FaPhone,
-      title: 'Phone',
-      value: personalInfo.phone,
-      color: 'text-green-500',
-      bgColor: 'bg-green-50 dark:bg-green-900/20',
-    },
-    {
-      icon: FaEnvelope,
-      title: 'Email',
-      value: personalInfo.email,
-      color: 'text-purple-500',
-      bgColor: 'bg-purple-50 dark:bg-purple-900/20',
-    },
-  ];
-
-  const socialLinksData = [
-    { icon: FaLinkedin, href: socialLinks.linkedin, label: 'LinkedIn', color: 'hover:text-blue-600' },
-    { icon: FaTwitter, href: socialLinks.twitter, label: 'Twitter', color: 'hover:text-blue-400' },
-    { icon: FaInstagram, href: socialLinks.instagram, label: 'Instagram', color: 'hover:text-pink-500' },
-  ];
-
   return (
-    <div className="space-y-10">
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        <h3 className="text-3xl font-bold text-dark-800 dark:text-white mb-6 font-heading">
-          Get in touch
+    <div className="space-y-8 font-mono text-xs">
+      <div>
+        <h3 className="text-xl font-bold text-[var(--offwhite)] mb-6 font-display uppercase tracking-wider">
+          CHANNELS //
         </h3>
-        <p className="text-body-lg text-dark-600 dark:text-dark-300 leading-relaxed mb-8">
-          I'm always excited to work on new projects and collaborate with amazing people. 
-          Whether you have a question, want to discuss a project, or just want to say hello, 
-          feel free to reach out!
+        <p className="text-[var(--muted)] leading-relaxed mb-6">
+          Reach out directly regarding active inquiries, design collaborations, or engineering role discussions.
         </p>
-      </motion.div>
+      </div>
 
-      <div className="space-y-6">
-        {contactItems.map((item, index) => (
-          <motion.div
-            key={item.title}
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            whileHover={{ scale: 1.02, x: 10 }}
-            className={`glass-premium p-6 rounded-2xl border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-300 ${item.bgColor}`}
-          >
-            <div className="flex items-center">
-              <motion.div
-                className={`w-16 h-16 rounded-2xl ${item.bgColor} flex items-center justify-center mr-6`}
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <item.icon className={`w-8 h-8 ${item.color}`} />
-              </motion.div>
-              <div>
-                <h4 className="font-semibold text-dark-800 dark:text-white text-lg mb-1">
-                  {item.title}
-                </h4>
-                <p className={`text-base font-medium ${item.color}`}>
-                  {item.value}
-                </p>
-              </div>
-            </div>
-          </motion.div>
+      <div className="space-y-4">
+        {[
+          { label: 'LOCATION', value: personalInfo.location },
+          { label: 'EMAIL', value: personalInfo.email, href: `mailto:${personalInfo.email}` },
+          { label: 'LINKEDIN', value: 'kunallohaniya', href: socialLinks.linkedin },
+          { label: 'GITHUB', value: 'kunallohaniya', href: socialLinks.github }
+        ].map((item, index) => (
+          <div key={index} className="p-4 border border-[var(--border-dim)] bg-[var(--surface)]">
+            <span className="text-[var(--muted)] block mb-1 uppercase tracking-wider">{item.label}</span>
+            {item.href ? (
+              <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-[var(--amber)] hover:underline cursor-none">
+                {item.value}
+              </a>
+            ) : (
+              <span className="text-[var(--offwhite)]">{item.value}</span>
+            )}
+          </div>
         ))}
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-      >
-        <h4 className="text-xl font-semibold text-dark-800 dark:text-white mb-6 font-heading">
-          Follow me
-        </h4>
-        <div className="flex space-x-4">
-          {socialLinksData.map((social, index) => (
-            <motion.a
-              key={social.label}
-              href={social.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              initial={{ opacity: 0, scale: 0 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
-              whileHover={{ scale: 1.1, y: -5 }}
-              whileTap={{ scale: 0.9 }}
-              className={`p-4 rounded-2xl glass-premium border border-white/20 dark:border-white/10 text-dark-700 dark:text-dark-300 transition-all duration-300 interactive-glow ${social.color}`}
-              aria-label={social.label}
-            >
-              <social.icon className="w-6 h-6" />
-            </motion.a>
-          ))}
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="glass-premium p-8 rounded-2xl border border-white/20 dark:border-white/10 shadow-xl"
-      >
-        <div className="flex items-center gap-4 mb-4">
-          <motion.div
-            className="w-4 h-4 bg-green-500 rounded-full"
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-          <h4 className="font-semibold text-dark-800 dark:text-white text-lg">
-            Available for work
-          </h4>
-        </div>
-        <p className="text-dark-600 dark:text-dark-300 leading-relaxed">
-          I'm currently available for freelance projects and full-time opportunities. 
-          Let's discuss how we can work together!
-        </p>
-      </motion.div>
+      <div className="p-6 border border-[var(--border-dim)] bg-[var(--surface)] flex items-center gap-3">
+        <span className="w-2 h-2 rounded-full bg-[var(--success)] animate-pulse" />
+        <span className="text-[var(--success)] tracking-wider">ACTIVE & AVAILABLE FOR NEW PROJECTS</span>
+      </div>
     </div>
   );
 });
@@ -583,130 +344,29 @@ const ContactInfo = React.memo(() => {
 ContactInfo.displayName = 'ContactInfo';
 
 const Contact = () => {
-  const { getPersonalInfo, getSocialLinks } = usePortfolioData();
-  const personalInfo = getPersonalInfo();
-  const socialLinks = getSocialLinks();
-
   return (
-    <section id="contact" className="py-24 bg-gradient-to-br from-white via-primary-50/30 to-secondary-50/30 dark:from-dark-900 dark:via-dark-800/30 dark:to-dark-700/30 relative overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute top-20 right-20 w-64 h-64 glass-premium rounded-full blur-3xl opacity-20"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.2, 0.4, 0.2]
-          }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-20 left-20 w-48 h-48 glass-premium rounded-full blur-3xl opacity-20"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.4, 0.2, 0.4]
-          }}
-          transition={{ duration: 6, repeat: Infinity }}
-        />
-      </div>
+    <section id="contact" className="section-gap relative overflow-hidden bg-[var(--base)]">
+      {/* Editorial section number texture */}
+      <span className="section-number-bg" style={{ top: '-60px', right: '40px' }}>06</span>
 
-      <div className="container-premium relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-20"
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center px-6 py-3 rounded-full glass-premium border border-white/20 dark:border-white/10 shadow-xl mb-6"
-          >
-            <span className="text-sm font-medium text-dark-700 dark:text-dark-300 font-heading">
-              💬 Let's Connect
-            </span>
-          </motion.div>
-          
-          <h2 className="heading-xl mb-6">
-            <span className="gradient-text-premium">
-              Let's Work Together
-            </span>
+      <div className="container-editorial relative z-10">
+        
+        {/* Header */}
+        <div className="mb-20">
+          <p className="label-caps-amber mb-4">CORRESPONDENCE</p>
+          <h2 className="text-display mb-6">
+            ESTABLISH<br />
+            CONNECTION
           </h2>
-          
-          <p className="text-body-lg text-dark-600 dark:text-dark-300 max-w-3xl mx-auto leading-relaxed">
-            Ready to bring your ideas to life? I'd love to hear about your project and discuss how we can create something amazing together.
+          <p className="text-sm text-[var(--muted)] max-w-xl font-mono leading-relaxed">
+            Get in touch to initiate custom project estimates, engineering consultations, or job placement procedures.
           </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-20">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <ContactForm />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <ContactInfo />
-          </motion.div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-center"
-        >
-          <div className="glass-premium p-12 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl max-w-4xl mx-auto">
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              className="inline-block mb-8"
-            >
-              <FaRocket className="w-20 h-20 text-primary-500" />
-            </motion.div>
-            
-            <h3 className="heading-lg mb-6">
-              <span className="gradient-text-premium">Ready to Start Your Project?</span>
-            </h3>
-            <p className="text-body-lg text-dark-600 dark:text-dark-300 mb-8 max-w-2xl mx-auto">
-              I'm passionate about creating exceptional digital experiences. 
-              Let's discuss your project requirements and bring your vision to life.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <motion.a
-                href={`mailto:${personalInfo.email}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="btn-glow flex items-center gap-3 px-8 py-4 text-lg font-semibold"
-              >
-                <FaEnvelope className="w-5 h-5" />
-                Email Me Directly
-              </motion.a>
-              
-              <motion.a
-                href={socialLinks.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="btn-outline flex items-center gap-3 px-8 py-4 text-lg font-semibold"
-              >
-                <FaLinkedin className="w-5 h-5" />
-                Connect on LinkedIn
-              </motion.a>
-            </div>
-          </div>
-        </motion.div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
+          <ContactForm />
+          <ContactInfo />
+        </div>
       </div>
     </section>
   );

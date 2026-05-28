@@ -10,7 +10,7 @@ import { usePortfolioData } from '../hooks/usePortfolioData';
 const About = lazy(() => import('../components/About'));
 const Skills = lazy(() => import('../components/Skills'));
 const Projects = lazy(() => import('../components/Projects'));
-const Blog = lazy(() => import('../components/Blog'));
+// const Blog = lazy(() => import('../components/Blog'));
 const EasterEggTerminal = lazy(() => import('../components/EasterEggTerminal'));
 import Contact from '../components/Contact';
 
@@ -51,9 +51,9 @@ const Home = () => {
             <Projects />
           </LazySection>
           
-          <LazySection id="blog" height="600px">
+          {/* <LazySection id="blog" height="600px">
             <Blog />
-          </LazySection>
+          </LazySection> */}
           
           <Contact />
         </Suspense>

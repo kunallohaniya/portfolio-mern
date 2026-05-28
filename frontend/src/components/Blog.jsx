@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { FaCalendarAlt, FaUser, FaTag, FaArrowRight, FaSearch } from 'react-icons/fa';
+import { FaArrowRight, FaSearch } from 'react-icons/fa';
 
 // Sample blog data - in production, this would come from a CMS or API
 const BLOG_POSTS = [
@@ -9,142 +8,72 @@ const BLOG_POSTS = [
     id: 1,
     title: 'Building Scalable MERN Applications',
     excerpt: 'Learn how to architect and build scalable MERN stack applications with best practices for performance and maintainability.',
-    content: 'Full article content here...',
     author: 'Kunal Lohaniya',
     date: '2024-01-15',
     readTime: '8 min read',
     tags: ['MERN', 'Node.js', 'MongoDB', 'React'],
-    image: '/blog/mern-scalable.jpg',
     featured: true,
-    slug: 'building-scalable-mern-applications'
   },
   {
     id: 2,
     title: 'Modern React Patterns and Hooks',
     excerpt: 'Exploring advanced React patterns, custom hooks, and how to write more maintainable React code.',
-    content: 'Full article content here...',
     author: 'Kunal Lohaniya',
     date: '2024-01-10',
     readTime: '6 min read',
-    tags: ['React', 'Hooks', 'JavaScript', 'Frontend'],
-    image: '/blog/react-patterns.jpg',
+    tags: ['React', 'Hooks', 'JavaScript'],
     featured: false,
-    slug: 'modern-react-patterns-hooks'
   },
   {
     id: 3,
     title: 'Database Design Best Practices',
     excerpt: 'Essential database design principles for MongoDB and how to optimize your data models for better performance.',
-    content: 'Full article content here...',
     author: 'Kunal Lohaniya',
     date: '2024-01-05',
     readTime: '10 min read',
-    tags: ['MongoDB', 'Database', 'Performance', 'Backend'],
-    image: '/blog/database-design.jpg',
+    tags: ['MongoDB', 'Database', 'Performance'],
     featured: false,
-    slug: 'database-design-best-practices'
   },
   {
     id: 4,
     title: 'Deploying Full-Stack Applications',
     excerpt: 'A comprehensive guide to deploying MERN applications using modern cloud platforms and CI/CD pipelines.',
-    content: 'Full article content here...',
     author: 'Kunal Lohaniya',
     date: '2024-01-01',
     readTime: '12 min read',
-    tags: ['Deployment', 'DevOps', 'AWS', 'CI/CD'],
-    image: '/blog/deployment-guide.jpg',
+    tags: ['Deployment', 'DevOps', 'AWS'],
     featured: true,
-    slug: 'deploying-full-stack-applications'
   }
 ];
 
-const BlogCard = ({ post, index }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
+const BlogCard = ({ post }) => {
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="card card-hover group cursor-pointer"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Featured Badge */}
-      {post.featured && (
-        <div className="absolute top-4 left-4 z-10">
-          <span className="bg-gradient-to-r from-primary-500 to-primary-700 text-white px-3 py-1 rounded-full text-xs font-semibold">
-            Featured
-          </span>
-        </div>
-      )}
-
-      {/* Blog Image */}
-      <div className="relative overflow-hidden rounded-t-xl">
-        <div className="aspect-video bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900 dark:to-primary-800 flex items-center justify-center">
-          <span className="text-primary-600 dark:text-primary-400 text-4xl font-bold">
-            {post.title.charAt(0)}
-          </span>
-        </div>
-        <motion.div
-          className="absolute inset-0 bg-black/20"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isHovered ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
-        />
-      </div>
-
-      {/* Blog Content */}
-      <div className="p-6">
-        {/* Meta Information */}
-        <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300 mb-4">
-          <div className="flex items-center space-x-1">
-            <FaCalendarAlt className="w-3 h-3" />
-            <span>{new Date(post.date).toLocaleDateString()}</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <FaUser className="w-3 h-3" />
-            <span>{post.author}</span>
-          </div>
+    <article className="py-8 border-b border-[var(--border-dim)] flex flex-col md:flex-row gap-6 justify-between items-start md:items-center group">
+      <div className="max-w-2xl">
+        <div className="flex gap-4 items-center mb-3 text-xs font-mono text-[var(--muted)]">
+          <span>{post.date}</span>
+          <span>•</span>
           <span>{post.readTime}</span>
+          {post.featured && (
+            <>
+              <span>•</span>
+              <span className="text-[var(--amber)]">FEATURED</span>
+            </>
+          )}
         </div>
-
-        {/* Title */}
-        <motion.h3
-          className="text-xl font-bold text-dark-800 dark:text-white mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-300"
-          whileHover={{ scale: 1.02 }}
-        >
+        <h3 className="text-section-heading mb-3 group-hover:text-[var(--amber)] transition-colors duration-250">
           {post.title}
-        </motion.h3>
-
-        {/* Excerpt */}
-        <p className="text-gray-600 dark:text-gray-200 mb-4 line-clamp-3">
+        </h3>
+        <p className="text-xs font-mono text-[var(--muted)] leading-relaxed line-clamp-2">
           {post.excerpt}
         </p>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {post.tags.map((tag, tagIndex) => (
-            <span
-              key={tagIndex}
-              className="px-2 py-1 bg-gray-100 dark:bg-dark-600 text-gray-700 dark:text-gray-100 text-xs rounded-full"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {/* Read More Button */}
-        <motion.div
-          className="flex items-center text-primary-600 dark:text-primary-400 font-semibold group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors duration-300"
-          whileHover={{ x: 5 }}
-        >
-          <span>Read More</span>
-          <FaArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-        </motion.div>
       </div>
-    </motion.article>
+
+      <div className="flex items-center gap-2 text-xs font-mono text-[var(--offwhite)] group-hover:text-[var(--amber)] transition-colors duration-250 cursor-none">
+        <span>READ ARTICLE</span>
+        <FaArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-250" />
+      </div>
+    </article>
   );
 };
 
@@ -165,106 +94,64 @@ const Blog = () => {
   });
 
   return (
-    <section id="blog" className="section-padding bg-gray-50 dark:bg-dark-800">
-      <div className="container-custom">
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <h2 className="heading-responsive font-bold gradient-text mb-6">
-            Latest Articles
-          </h2>
-          <p className="text-responsive text-gray-600 dark:text-gray-200 max-w-3xl mx-auto">
-            Sharing insights, tutorials, and thoughts on modern web development, 
-            MERN stack, and software engineering best practices.
-          </p>
-        </motion.div>
+    <section id="blog" ref={ref} className="section-gap relative overflow-hidden bg-[var(--base)]">
+      {/* Editorial section number texture */}
+      <span className="section-number-bg" style={{ top: '-60px', left: '40px' }}>05</span>
 
-        {/* Search and Filter */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex flex-col md:flex-row gap-4 mb-12"
-        >
-          {/* Search Bar */}
-          <div className="relative flex-1">
-            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+      <div className="container-editorial relative z-10">
+        
+        {/* Header */}
+        <div className="mb-20">
+          <p className="label-caps-amber mb-4">PUBLICATIONS</p>
+          <h2 className="text-display mb-6">
+            JOURNAL &<br />
+            TECHNICAL ESSAYS
+          </h2>
+          <p className="text-sm text-[var(--muted)] max-w-xl font-mono leading-relaxed">
+            Thoughts, tutorials, and practical architectures regarding full-stack scalability, database schema optimization, and deployment procedures.
+          </p>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center mb-12 border-b border-[var(--border-dim)] pb-6">
+          <div className="relative w-full md:max-w-xs font-mono text-xs">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--muted)]" />
             <input
               type="text"
-              placeholder="Search articles..."
+              placeholder="SEARCH CATALOG //"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-dark-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
+              className="w-full pl-9 pr-4 py-2.5 bg-[var(--surface)] text-[var(--offwhite)] border border-[var(--border-dim)] outline-none focus:border-[var(--amber)] transition-colors duration-250 cursor-none"
             />
           </div>
 
-          {/* Tag Filter */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-4 items-center">
             {allTags.map((tag) => (
               <button
                 key={tag}
                 onClick={() => setSelectedTag(tag)}
-                className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
-                  selectedTag === tag
-                    ? 'bg-primary-600 text-white shadow-lg'
-                    : 'bg-white dark:bg-dark-600 text-gray-700 dark:text-gray-100 hover:bg-primary-50 dark:hover:bg-primary-900/20'
-                }`}
+                className={`filter-btn ${selectedTag === tag ? 'active' : ''}`}
               >
                 {tag}
               </button>
             ))}
           </div>
-        </motion.div>
+        </div>
 
-        {/* Blog Grid */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
-          {filteredPosts.map((post, index) => (
-            <BlogCard key={post.id} post={post} index={index} />
+        {/* Blog entries list */}
+        <div className="border-t border-[var(--border-std)]">
+          {filteredPosts.map((post) => (
+            <BlogCard key={post.id} post={post} />
           ))}
-        </motion.div>
+        </div>
 
-        {/* No Results */}
+        {/* No results */}
         {filteredPosts.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-12"
-          >
-            <div className="text-6xl mb-4">📝</div>
-            <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-200 mb-2">
-              No articles found
-            </h3>
-            <p className="text-gray-500 dark:text-gray-300">
-              Try adjusting your search or filter criteria
-            </p>
-          </motion.div>
+          <div className="text-center py-20 font-mono text-xs text-[var(--muted)] border-b border-[var(--border-dim)]">
+            NO JOURNAL ENTRIES FOUND FOR THE ACTIVE QUERY.
+          </div>
         )}
 
-        {/* View All Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="text-center mt-12"
-        >
-          <motion.button
-            className="btn-primary inline-flex items-center space-x-2"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <span>View All Articles</span>
-            <FaArrowRight className="w-4 h-4" />
-          </motion.button>
-        </motion.div>
       </div>
     </section>
   );

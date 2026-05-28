@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaGithub, FaExternalLinkAlt, FaTimes, FaFilter, FaCode, FaEye, FaRocket, FaStar, FaHeart, FaCalendarAlt, FaTag, FaChartLine, FaLayerGroup, FaUsers } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
 import { usePortfolioData } from '../hooks/usePortfolioData';
-import SectionBackground from './SectionBackground';
-import { ANIMATION_VARIANTS } from '../utils/constants';
 
 // Premium Project Modal Component
 const ProjectModal = ({ project, isOpen, onClose }) => {
@@ -16,178 +14,77 @@ const ProjectModal = ({ project, isOpen, onClose }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           onClick={onClose}
         >
           <motion.div
-            initial={{ scale: 0.8, opacity: 0, y: 50 }}
+            initial={{ scale: 0.95, opacity: 0, y: 30 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.8, opacity: 0, y: 50 }}
-            transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="glass-premium rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-white/20 dark:border-white/10 shadow-2xl"
+            exit={{ scale: 0.95, opacity: 0, y: 30 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="bg-[var(--surface)] border border-[var(--border-std)] max-w-4xl w-full max-h-[90vh] overflow-y-auto relative p-8 md:p-12"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Premium Modal Header */}
-            <div className="relative p-8 border-b border-white/20 dark:border-white/10">
-              <motion.button
-                onClick={onClose}
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.9 }}
-                className="absolute top-6 right-6 p-3 rounded-full glass-premium border border-white/20 dark:border-white/10 text-dark-600 dark:text-dark-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-300 interactive-glow"
-              >
-                <FaTimes className="w-5 h-5" />
-              </motion.button>
-              
-              <div className="flex items-start gap-6">
-                <motion.div 
-                  className="w-20 h-20 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center shadow-xl"
-                  whileHover={{ scale: 1.05, rotate: 5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <FaCode className="w-10 h-10 text-white" />
-                </motion.div>
-                <div className="flex-1">
-                  <h2 className="text-3xl font-bold text-dark-800 dark:text-white mb-3 font-heading">
-                    {project.title}
-                  </h2>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="px-4 py-2 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-sm font-medium rounded-full">
-                      {project.category}
-                    </span>
-                    {project.featured && (
-                      <span className="px-4 py-2 bg-primary-100 dark:bg-accent-900 text-primary-700 dark:text-accent-300 text-sm font-medium rounded-full flex items-center gap-2">
-                        <FaStar className="w-3 h-3" />
-                        Featured
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-dark-500 dark:text-dark-400">
-                    <span className="flex items-center gap-2">
-                      <FaCalendarAlt className="w-4 h-4" />
-                      {project.date}
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <FaTag className="w-4 h-4" />
-                      {project.technologies.length} Technologies
-                    </span>
-                  </div>
-                </div>
+            {/* Modal Close */}
+            <button
+              onClick={onClose}
+              className="absolute top-6 right-6 p-2 border border-[var(--border-std)] text-[var(--muted)] hover:text-[var(--offwhite)] hover:border-[var(--amber)] transition-colors duration-250 cursor-none"
+            >
+              <FaTimes className="w-4 h-4" />
+            </button>
+
+            {/* Header */}
+            <div className="mb-8">
+              <span className="label-caps-amber mb-2 block">{project.category}</span>
+              <h2 className="text-display mb-4">{project.title}</h2>
+              <div className="flex gap-4 text-xs text-[var(--muted)] font-mono">
+                <span>DATE: {project.date || project.startDate}</span>
+                <span>STATUS: {project.status}</span>
               </div>
             </div>
 
-            {/* Premium Modal Content */}
-            <div className="p-8 space-y-8">
-              {/* Premium Project Image */}
-              <motion.div 
-                className="aspect-video bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/20 dark:to-secondary-900/20 rounded-2xl flex items-center justify-center relative overflow-hidden group"
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-              >
-                {project.image ? (
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover rounded-2xl"
-                  />
-                ) : (
-                  <div className="text-center">
-                    <FaRocket className="w-20 h-20 text-primary-500 mx-auto mb-4" />
-                    <p className="text-dark-600 dark:text-dark-300 font-medium">Interactive Project Preview</p>
-                  </div>
-                )}
-                {/* Premium Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </motion.div>
-
-              {/* Premium Description */}
-              <div>
-                <h3 className="text-xl font-semibold text-dark-800 dark:text-white mb-4 font-heading">
-                  Project Overview
-                </h3>
-                <p className="text-dark-600 dark:text-dark-300 leading-relaxed text-body-base">
-                  {project.description}
-                </p>
-              </div>
-
-              {/* Premium Technologies */}
-              <div>
-                <h3 className="text-xl font-semibold text-dark-800 dark:text-white mb-4 font-heading">
-                  Technologies & Tools
-                </h3>
-                <div className="flex flex-wrap gap-3">
-                  {project.technologies.map((tech, index) => (
-                    <motion.span
-                      key={index}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.05 }}
-                      whileHover={{ scale: 1.05 }}
-                      className="px-4 py-2 glass-premium border border-white/20 dark:border-white/10 text-dark-700 dark:text-dark-300 text-sm font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-                    >
-                      {tech}
-                    </motion.span>
+            {/* Description */}
+            <div className="mb-8">
+              <p className="text-[var(--offwhite)] leading-relaxed text-sm font-mono whitespace-pre-line mb-6">
+                {project.longDescription || project.description}
+              </p>
+              {project.highlights && (
+                <ul className="list-none space-y-2 text-sm text-[var(--muted)] font-mono">
+                  {project.highlights.map((highlight, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-[var(--amber)]">➔</span>
+                      <span>{highlight}</span>
+                    </li>
                   ))}
-                </div>
-              </div>
+                </ul>
+              )}
+            </div>
 
-              {/* Premium Features */}
-              <div>
-                <h3 className="text-xl font-semibold text-dark-800 dark:text-white mb-4 font-heading">
-                  Key Features & Highlights
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {project.features?.map((feature, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="flex items-start p-4 rounded-xl glass-premium border border-white/20 dark:border-white/10"
-                    >
-                      <span className="w-2 h-2 bg-primary-500 rounded-full mt-2 mr-3 flex-shrink-0" />
-                      <span className="text-dark-600 dark:text-dark-300 text-sm">
-                        {feature}
-                      </span>
-                    </motion.div>
-                  )) || [
-                    "Responsive design with modern UI/UX",
-                    "Scalable architecture and performance optimization",
-                    "Secure authentication and data management",
-                    "Cross-platform compatibility"
-                  ].map((feature, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="flex items-start p-4 rounded-xl glass-premium border border-white/20 dark:border-white/10"
-                    >
-                      <span className="w-2 h-2 bg-primary-500 rounded-full mt-2 mr-3 flex-shrink-0" />
-                      <span className="text-dark-600 dark:text-dark-300 text-sm">
-                        {feature}
-                      </span>
-                    </motion.div>
-                  ))}
-                </div>
+            {/* Technologies */}
+            <div className="mb-8">
+              <span className="label-caps block mb-4">Technologies & Stack</span>
+              <div className="flex flex-wrap gap-2">
+                {project.technologies.map((tech, index) => (
+                  <span key={index} className="tech-tag">
+                    {tech}
+                  </span>
+                ))}
               </div>
+            </div>
 
-              {/* Premium Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                
-                {project.liveUrl && (
-                  <motion.a
-                    href={project.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="btn-outline flex items-center justify-center gap-3 flex-1 py-4 text-lg font-semibold"
-                  >
-                    <FaExternalLinkAlt className="w-5 h-5" />
-                    Live Demo
-                  </motion.a>
-                )}
-              </div>
+            {/* Actions */}
+            <div className="flex gap-4 pt-4 border-t border-[var(--border-dim)]">
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary cursor-none"
+                >
+                  <FaExternalLinkAlt className="w-3.5 h-3.5" />
+                  Live Website
+                </a>
+              )}
             </div>
           </motion.div>
         </motion.div>
@@ -199,108 +96,58 @@ const ProjectModal = ({ project, isOpen, onClose }) => {
 // Premium Project Card Component
 const ProjectCard = ({ project, index }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const formattedIndex = String(index + 1).padStart(2, '0');
 
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: index * 0.1 }}
-        whileHover={{ y: -10, scale: 1.02 }}
-        className="glass-premium rounded-2xl overflow-hidden border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-300 group cursor-pointer"
+      <div
+        className="project-card"
         onClick={() => setIsModalOpen(true)}
       >
-        {/* Premium Project Image */}
-        <div className="aspect-video bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/20 dark:to-secondary-900/20 flex items-center justify-center relative overflow-hidden">
-          {project.image ? (
-            <img
-              src={project.image}
-              alt={project.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          ) : (
-            <motion.div className="text-center" whileHover={{ scale: 1.1 }} transition={{ duration: 0.3 }}>
-              <FaCode className="w-16 h-16 text-primary-500 mx-auto mb-4" />
-              <p className="text-dark-600 dark:text-dark-300 font-medium">{project.title}</p>
-            </motion.div>
-          )}
-          {/* Premium Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="p-4 glass-premium rounded-full text-white hover:bg-white/20 transition-colors duration-300">
-              <FaEye className="w-6 h-6" />
-            </motion.div>
-          </div>
-          {/* Premium Badge */}
-          {project.featured && (
-            <div className="absolute top-4 right-4">
-              <span className="px-3 py-1 bg-primary-600 dark:bg-purple-600 text-white text-xs font-medium rounded-full flex items-center gap-1">
-                <FaStar className="w-3 h-3" />
-                Featured
-              </span>
-            </div>
-          )}
-        </div>
+        {/* Large background number */}
+        <span className="project-number">{formattedIndex}</span>
 
-        {/* Premium Project Info */}
-        <div className="p-6">
-          <div className="flex items-start justify-between mb-4">
-            <h3 className="text-xl font-bold text-dark-800 dark:text-white font-heading">
-              {project.title}
-            </h3>
-            <span className="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-sm font-medium rounded-full">
-              {project.category}
+        {/* Category & Status */}
+        <div className="flex justify-between items-center mb-6 relative z-10">
+          <span className="label-caps-amber">{project.category}</span>
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />
+            <span className="text-[0.65rem] tracking-widest uppercase text-[var(--muted)] font-mono">
+              {project.status}
             </span>
           </div>
-
-          <p className="text-dark-600 dark:text-dark-300 mb-4 line-clamp-3 text-sm leading-relaxed">
-            {project.description}
-          </p>
-
-          {/* Premium Technologies */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {project.technologies.slice(0, 3).map((tech, idx) => (
-              <span
-                key={idx}
-                className="px-2 py-1 glass-premium text-dark-700 dark:text-dark-300 text-xs font-medium rounded-full border border-white/20 dark:border-white/10"
-              >
-                {tech}
-              </span>
-            ))}
-            {project.technologies.length > 3 && (
-              <span className="px-2 py-1 glass-premium text-dark-700 dark:text-dark-300 text-xs font-medium rounded-full border border-white/20 dark:border-white/10">
-                +{project.technologies.length - 3} more
-              </span>
-            )}
-          </div>
-
-          {/* Premium Action Buttons */}
-          <div className="flex gap-3">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex-1 btn-glow text-sm py-3 font-semibold"
-            >
-              View Details
-            </motion.button>
-            
-            
-            {project.liveUrl && (
-              <motion.a
-                href={project.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="p-3 glass-premium text-dark-700 dark:text-dark-300 rounded-xl hover:bg-primary-100 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-300 interactive-glow"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <FaExternalLinkAlt className="w-4 h-4" />
-              </motion.a>
-            )}
-          </div>
         </div>
-      </motion.div>
+
+        {/* Title */}
+        <h3 className="text-section-heading mb-4 relative z-10 hover:text-[var(--amber)] transition-colors duration-200">
+          {project.title}
+        </h3>
+
+        {/* Description */}
+        <p className="text-[var(--muted)] mb-8 line-clamp-3 text-xs leading-relaxed font-mono relative z-10">
+          {project.description}
+        </p>
+
+        {/* Technologies */}
+        <div className="flex flex-wrap gap-2 mb-8 relative z-10">
+          {project.technologies.slice(0, 3).map((tech, idx) => (
+            <span key={idx} className="tech-tag">
+              {tech}
+            </span>
+          ))}
+          {project.technologies.length > 3 && (
+            <span className="tech-tag text-[var(--amber)]">
+              +{project.technologies.length - 3} MORE
+            </span>
+          )}
+        </div>
+
+        {/* Details link */}
+        <div className="flex items-center gap-2 text-xs font-mono text-[var(--offwhite)] hover:text-[var(--amber)] transition-colors duration-250 relative z-10">
+          <span>VIEW CASE STUDY</span>
+          <span className="text-[var(--amber)]">➔</span>
+        </div>
+      </div>
 
       <ProjectModal
         project={project}
@@ -329,168 +176,54 @@ const Projects = () => {
   }, [filter, projectsData]);
 
   return (
-    <section id="projects" className="py-24 bg-gradient-to-br from-white via-secondary-50/30 to-primary-50/30 dark:from-dark-900 dark:via-dark-800/30 dark:to-dark-700/30 relative overflow-hidden">
-      {/* Optimized Performance Background */}
-      <SectionBackground primaryColor="secondary" secondaryColor="primary" />
+    <section id="projects" className="section-gap relative overflow-hidden bg-[var(--base)]">
+      {/* Editorial section number texture */}
+      <span className="section-number-bg" style={{ top: '-60px', right: '40px' }}>04</span>
 
-      <div className="container-premium relative z-10">
-        {/* Premium Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-20"
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center px-6 py-3 rounded-full glass-premium border border-white/20 dark:border-white/10 shadow-xl mb-6"
-          >
-            <span className="text-sm font-medium text-dark-700 dark:text-dark-300 font-heading">
-              🚀 Featured Projects
-            </span>
-          </motion.div>
-          
-          <h2 className="heading-xl mb-6">
-            <span className="gradient-text-premium">
-              Creative Digital Solutions
-            </span>
+      <div className="container-editorial relative z-10">
+        {/* Header */}
+        <div className="mb-20">
+          <p className="label-caps-amber mb-4">SELECTED WORK</p>
+          <h2 className="text-display mb-6">
+            DIGITAL CREATIONS &<br />
+            TECHNICAL SOLUTIONS
           </h2>
-          
-          <p className="text-body-lg text-dark-600 dark:text-dark-300 max-w-3xl mx-auto leading-relaxed">
-            A showcase of my recent work and projects that demonstrate my skills and expertise in modern web development.
+          <p className="text-sm text-[var(--muted)] max-w-xl font-mono leading-relaxed">
+            A curated index of full-stack projects, fintech systems, compliance tools, and B2B platforms built with robust architectures.
           </p>
-        </motion.div>
+        </div>
 
-        {/* Premium Filter Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-wrap justify-center gap-4 mb-16"
-        >
-          <div className="flex items-center gap-2 text-dark-600 dark:text-dark-300 font-medium">
-            <FaFilter className="w-4 h-4" />
-            <span>Filter by:</span>
-          </div>
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap gap-x-8 gap-y-4 items-center mb-16 border-b border-[var(--border-dim)] pb-6">
+          <span className="text-xs text-[var(--muted)] font-mono uppercase tracking-wider">Filter /</span>
           {categories.map((category) => (
-            <motion.button
+            <button
               key={category}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
               onClick={() => setFilter(category)}
-              className={`px-6 py-3 rounded-full font-medium transition-all duration-300 capitalize ${
-                filter === category
-                  ? 'btn-glow text-white shadow-xl'
-                  : 'glass-premium text-dark-700 dark:text-dark-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 border border-white/20 dark:border-white/10'
-              }`}
+              className={`filter-btn ${filter === category ? 'active' : ''}`}
             >
               {category}
-            </motion.button>
+            </button>
           ))}
-        </motion.div>
+        </div>
 
-        {/* Premium Projects Grid */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20"
-        >
-          <AnimatePresence mode="wait">
-            {filteredProjects.map((project, index) => (
+        {/* Asymmetric Projects Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
+          {filteredProjects.map((project, index) => (
+            <div
+              key={project.id}
+              className={index % 3 === 0 ? 'md:col-span-2' : 'md:col-span-1'}
+            >
               <ProjectCard
-                key={project.id}
                 project={project}
                 index={index}
               />
-            ))}
-          </AnimatePresence>
-        </motion.div>
-
-        {/* Premium Stats Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20"
-        >
-          {[
-            { label: 'Projects Completed', value: '5+', Icon: FaRocket },
-            { label: 'Technologies Used', value: '15+', Icon: FaLayerGroup },
-            { label: 'Happy Clients', value: '5+', Icon: FaUsers },
-            { label: 'Years Experience', value: '1+', Icon: FaChartLine },
-          ].map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.05, y: -5 }}
-              className="text-center p-6 rounded-2xl glass-premium border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-300 group"
-            >
-              <motion.div
-                className="flex justify-center mb-3"
-                whileHover={{ scale: 1.2, rotate: 10 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <stat.Icon className="w-9 h-9 text-primary-500" />
-              </motion.div>
-              <div className="text-3xl font-bold gradient-text-premium mb-2 font-heading">
-                {stat.value}
-              </div>
-              <div className="text-sm text-dark-600 dark:text-dark-300 font-medium">
-                {stat.label}
-              </div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
-
-        {/* Premium Call to Action */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 1.0 }}
-          className="text-center"
-        >
-          <div className="glass-premium p-12 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl max-w-4xl mx-auto">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="inline-block mb-6"
-            >
-              <FaHeart className="w-16 h-16 text-primary-500" />
-            </motion.div>
-            <h3 className="heading-lg mb-4">
-              <span className="gradient-text-premium">Ready to Create Something Amazing?</span>
-            </h3>
-            <p className="text-body-lg text-dark-600 dark:text-dark-300 mb-8 max-w-2xl mx-auto">
-              I'm always excited to take on new challenges and create amazing digital experiences. 
-              Let's discuss your project and bring your ideas to life!
-            </p>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                const contactSection = document.getElementById('contact');
-                if (contactSection) {
-                  contactSection.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-              className="btn-glow px-8 py-4 text-lg font-semibold"
-            >
-              Let's Work Together
-            </motion.button>
-          </div>
-        </motion.div>
+        </div>
       </div>
+
+      <hr className="hr-editorial" />
     </section>
   );
 };

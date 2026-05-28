@@ -33,28 +33,22 @@
       { "name": "HTML/CSS", "level": 95, "icon": "🎨", "category": "Markup", "years": 3 },
       { "name": "Tailwind CSS", "level": 90, "icon": "💨", "category": "Framework", "years": 3 },
       { "name": "Next.js", "level": 80, "icon": "▲", "category": "Framework", "years": 1 },
-      { "name": "Vue.js", "level": 75, "icon": "💚", "category": "Framework", "years": 1 },
       { "name": "SASS/SCSS", "level": 85, "icon": "💅", "category": "Preprocessor", "years": 1 }
     ],
     "backend": [
       { "name": "Node.js", "level": 90, "icon": "🟢", "category": "Runtime", "years": 2 },
       { "name": "Express.js", "level": 85, "icon": "🚀", "category": "Framework", "years": 2 },
       { "name": "MongoDB", "level": 88, "icon": "🍃", "category": "Database", "years": 2 },
-      { "name": "PostgreSQL", "level": 80, "icon": "🐘", "category": "Database", "years": 1 },
       { "name": "Python", "level": 75, "icon": "🐍", "category": "Language", "years": 1 },
-      { "name": "Django", "level": 70, "icon": "🎯", "category": "Framework", "years": 1 },
       { "name": "REST APIs", "level": 90, "icon": "🔌", "category": "Architecture", "years": 3 },
       { "name": "GraphQL", "level": 75, "icon": "📊", "category": "Query Language", "years": 1 }
     ],
     "tools": [
       { "name": "Git", "level": 90, "icon": "📝", "category": "Version Control", "years": 3 },
       { "name": "Docker", "level": 80, "icon": "🐳", "category": "Containerization", "years": 1 },
-      { "name": "AWS", "level": 75, "icon": "☁️", "category": "Cloud Platform", "years": 1 },
       { "name": "Vercel", "level": 85, "icon": "▲", "category": "Deployment", "years": 2 },
-      { "name": "Figma", "level": 80, "icon": "🎨", "category": "Design", "years": 1 },
       { "name": "VS Code", "level": 95, "icon": "💻", "category": "Editor", "years": 4 },
-      { "name": "Linux", "level": 85, "icon": "🐧", "category": "OS", "years": 3 },
-      { "name": "CI/CD", "level": 75, "icon": "🔄", "category": "DevOps", "years": 1 }
+      { "name": "Linux", "level": 85, "icon": "🐧", "category": "OS", "years": 3 }
     ]
   },
   "projects": [
@@ -393,12 +387,12 @@
     "about": {
       "description": "Display personal information",
       "usage": "about",
-      "output": "Name: Kunal Lohaniya\nTitle: Full Stack Developer\nLocation: Mumbai, India\nBio: Passionate full-stack developer with expertise in modern web technologies."
+      "output": "Name: Kunal Lohaniya\nTitle: Full Stack Developer\nLocation: Faridabad, India\nBio: Passionate full-stack developer with expertise in modern web technologies."
     },
     "contact": {
       "description": "Show contact information",
       "usage": "contact",
-      "output": "Email: kunal.lohaniya@example.com\nPhone: +91 (999) 123-4567\nGitHub: https://github.com/kunallohaniya\nLinkedIn: https://linkedin.com/in/kunallohaniya"
+      "output": "Email: kunal1912pr@gmail.com\nPhone: +91 8745948719\nGitHub: https://github.com/kunallohaniya\nLinkedIn: https://linkedin.com/in/kunallohaniya"
     },
     "theme": {
       "description": "Toggle dark/light theme",
@@ -423,7 +417,7 @@
     "author": "Kunal Lohaniya",
     "ogImage": "/og-image.jpg",
     "twitterCard": "summary_large_image",
-    "canonicalUrl": "https://kunallohaniya.dev"
+    "canonicalUrl": "https://kunalportfolio.in"
   },
   "analytics": {
     "googleAnalytics": {

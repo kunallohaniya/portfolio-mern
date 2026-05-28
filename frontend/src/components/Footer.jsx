@@ -1,165 +1,89 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { FaHeart, FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from 'react-icons/fa';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 
 const Footer = () => {
-  const { getPersonalInfo, getSocialLinks } = usePortfolioData();
+  const { getPersonalInfo, getSocialLinks, getSkillsData } = usePortfolioData();
   const personalInfo = getPersonalInfo();
   const socialLinks = getSocialLinks();
+  const skills = getSkillsData();
 
-  const currentYear = new Date().getFullYear();
-
-  const socialLinksData = [
-    { icon: FaLinkedin, href: socialLinks.linkedin, label: 'LinkedIn' },
-    { icon: FaTwitter, href: socialLinks.twitter, label: 'Twitter' },
-    { icon: FaEnvelope, href: socialLinks.email, label: 'Email' },
+  const allSkills = [
+    ...skills.frontend.map(s => s.name),
+    ...skills.backend.map(s => s.name),
+    ...skills.tools.map(s => s.name),
   ];
 
+  // Duplicate for marquee loop
+  const marqueeItems = [...allSkills, ...allSkills, ...allSkills];
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="bg-gradient-to-br from-dark-800 to-dark-900 dark:from-dark-900 dark:to-black relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute top-10 left-10 w-32 h-32 bg-primary-500/10 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.6, 0.3]
-          }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-10 right-10 w-48 h-48 bg-secondary-500/10 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.6, 0.3, 0.6]
-          }}
-          transition={{ duration: 6, repeat: Infinity }}
-        />
+    <footer className="bg-[var(--base)] border-t border-[var(--border-std)] relative overflow-hidden">
+      
+      {/* Tech stack marquee */}
+      <div className="py-6 border-b border-[var(--border-std)] bg-[var(--surface)] overflow-hidden">
+        <div className="marquee-track">
+          {marqueeItems.map((item, idx) => (
+            <div key={idx} className="marquee-item">
+              <span>{item}</span>
+              <span className="marquee-separator">//</span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="container-premium relative z-10">
-        <div className="py-16">
-          {/* Main Footer Content */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-            {/* Brand Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6"
-            >
-              <div>
-                <h3 className="text-2xl font-bold gradient-text-premium mb-4 font-heading">
-                  {personalInfo.name}
-                </h3>
-                <p className="text-dark-300 dark:text-dark-400 leading-relaxed">
-                  {personalInfo.bio}
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Quick Links */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="space-y-6"
-            >
-              <h4 className="text-lg font-semibold text-dark-100 dark:text-white mb-4 font-heading">
-                Quick Links
-              </h4>
-              <div className="space-y-3">
-                {['About', 'Skills', 'Projects', 'Contact'].map((link, index) => (
-                  <motion.button
-                    key={link}
-                    onClick={() => {
-                      const element = document.getElementById(link.toLowerCase());
-                      if (element) {
-                        element.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }}
-                    whileHover={{ scale: 1.05, x: 5 }}
-                    className="block text-dark-300 dark:text-dark-400 hover:text-primary-400 transition-colors duration-300 text-left"
-                  >
-                    {link}
-                  </motion.button>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Social Links */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="space-y-6"
-            >
-              <h4 className="text-lg font-semibold text-dark-100 dark:text-white mb-4 font-heading">
-                Connect With Me
-              </h4>
-              <div className="flex space-x-4">
-                {socialLinksData.map((social, index) => (
-                  <motion.a
-                    key={social.label}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    initial={{ opacity: 0, scale: 0 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.2, rotate: 5 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="p-3 rounded-full glass-premium border border-white/20 dark:border-white/10 text-dark-300 dark:text-dark-400 hover:text-primary-400 hover:bg-primary-500/20 transition-all duration-300 interactive-glow"
-                    aria-label={social.label}
-                  >
-                    <social.icon className="w-5 h-5" />
-                  </motion.a>
-                ))}
-              </div>
-            </motion.div>
+      <div className="container-editorial py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start mb-16">
+          
+          {/* Brand/Signature */}
+          <div>
+            <h3 className="text-section-heading mb-4">{personalInfo.name}</h3>
+            <p className="text-xs text-[var(--muted)] font-mono leading-relaxed max-w-sm">
+              {personalInfo.bio}
+            </p>
           </div>
 
-          {/* Divider */}
-          <div className="border-t border-white/20 dark:border-white/10 mb-8" />
+          {/* Socials & Availability */}
+          <div className="md:text-right font-mono text-xs">
+            <span className="label-caps mb-4 block md:text-right">INDEX / SOCIALS</span>
+            <div className="flex flex-wrap md:justify-end gap-x-8 gap-y-2 mb-8">
+              <a
+                href={socialLinks.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="nav-link cursor-none"
+              >
+                LinkedIn
+              </a>
+              <a
+                href={socialLinks.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="nav-link cursor-none"
+              >
+                GitHub
+              </a>
+              <a
+                href={`mailto:${personalInfo.email}`}
+                className="nav-link cursor-none"
+              >
+                Email
+              </a>
+            </div>
 
-          {/* Bottom Section */}
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="text-dark-300 dark:text-dark-400 text-center md:text-left"
-            >
-              <p className="flex items-center justify-center md:justify-start">
-                © {currentYear} {personalInfo.name}. Made with{' '}
-                <motion.span
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                  className="mx-1 text-red-500"
-                >
-                  <FaHeart />
-                </motion.span>{' '}
-                and modern web technologies.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="text-dark-300 dark:text-dark-400 text-center md:text-right"
-            >
-              <p>Optimized for Performance & Smoothness</p>
-            </motion.div>
+            <p className="text-[var(--muted)]">
+              AVAILABLE FOR ROLES & CONTRACTS WORLDWIDE
+            </p>
           </div>
+
         </div>
+
+        {/* Bottom imprint */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pt-8 border-t border-[var(--border-dim)] font-mono text-[0.65rem] text-[var(--muted)] tracking-wider">
+          <p>© {currentYear} {personalInfo.name.toUpperCase()}. ALL RIGHTS RESERVED.</p>
+          <p className="mt-2 sm:mt-0">DESIGNED & CODED FOR ABSOLUTE PERFORMANCE</p>
+        </div>
+
       </div>
     </footer>
   );

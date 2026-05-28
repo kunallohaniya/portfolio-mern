@@ -1,425 +1,391 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaDownload, FaArrowDown, FaCode, FaRocket, FaLightbulb, FaEye, FaTimes } from 'react-icons/fa';
+import React, { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { FaGithub, FaLinkedin, FaArrowDown, FaDownload } from 'react-icons/fa';
 import { usePortfolioData } from '../hooks/usePortfolioData';
-import { ANIMATION_VARIANTS } from '../utils/constants';
 
-// Premium Animated Gradient Background
-const AnimatedBackground = React.memo(() => {
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      <motion.div
-        className="absolute w-96 h-96 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full filter blur-3xl opacity-30"
-        style={{ top: '10%', right: '10%', willChange: 'transform, opacity' }}
-        animate={{
-          x: [0, 100, 0],
-          y: [0, -100, 0],
-          scale: [1, 1.2, 1],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      />
-      <motion.div
-        className="absolute w-96 h-96 bg-gradient-to-r from-accent-500 to-primary-500 rounded-full filter blur-3xl opacity-20"
-        style={{ bottom: '10%', left: '10%', willChange: 'transform, opacity' }}
-        animate={{
-          x: [0, -100, 0],
-          y: [0, 100, 0],
-          scale: [1.2, 1, 1.2],
-        }}
-        transition={{
-          duration: 15,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      />
-    </div>
-  );
-});
+gsap.registerPlugin(ScrollTrigger);
 
-AnimatedBackground.displayName = 'AnimatedBackground';
-
-// Premium Typewriter Effect Component
-const TypewriterText = React.memo(({ texts, speed = 100 }) => {
-  const [currentText, setCurrentText] = React.useState('');
-  const [currentIndex, setCurrentIndex] = React.useState(0);
-  const [isDeleting, setIsDeleting] = React.useState(false);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const fullText = texts[currentIndex];
-      
-      if (isDeleting) {
-        setCurrentText(fullText.substring(0, currentText.length - 1));
-      } else {
-        setCurrentText(fullText.substring(0, currentText.length + 1));
-      }
-
-      if (!isDeleting && currentText === fullText) {
-        setTimeout(() => setIsDeleting(true), 2000);
-      } else if (isDeleting && currentText === '') {
-        setIsDeleting(false);
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % texts.length);
-      }
-    }, isDeleting ? speed / 2 : speed);
-
-    return () => clearTimeout(timeout);
-  }, [currentText, isDeleting, currentIndex, texts, speed]);
-
-  return (
-    <span className="inline-block">
-      {currentText}
-      <motion.span
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ duration: 0.8, repeat: Infinity }}
-        className="text-primary-500 ml-1"
+// Split a string into individual character spans
+const SplitChars = ({ text, className = '' }) => (
+  <span className={className} aria-label={text} style={{ display: 'inline-block' }}>
+    {text.split('').map((char, i) => (
+      <span
+        key={i}
+        className="hero-char"
+        style={{ display: char === ' ' ? 'inline' : 'inline-block' }}
       >
-        |
-      </motion.span>
-    </span>
-  );
-});
-
-TypewriterText.displayName = 'TypewriterText';
-
-// Floating Developer Tags Component
-const FloatingTags = React.memo(() => {
-  const tags = [
-    { text: 'React', icon: FaCode, delay: 0 },
-    { text: 'Node.js', icon: FaRocket, delay: 0.5 },
-    { text: 'Innovation', icon: FaLightbulb, delay: 1 },
-  ];
-
-  return (
-    <div className="absolute inset-0 pointer-events-none">
-      {tags.map((tag, index) => (
-        <motion.div
-          key={tag.text}
-          className="absolute glass-premium rounded-full px-4 py-2 text-sm font-medium text-primary-600 dark:text-primary-400"
-          style={{
-            left: `${20 + index * 25}%`,
-            top: `${30 + index * 15}%`,
-          }}
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: tag.delay, duration: 0.5 }}
-          whileHover={{ scale: 1.1 }}
-        >
-          <tag.icon className="inline-block mr-2" />
-          {tag.text}
-        </motion.div>
-      ))}
-    </div>
-  );
-});
-
-FloatingTags.displayName = 'FloatingTags';
-
-// Premium Cursor Glow Effect
-const CursorGlow = React.memo(() => {
-  const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  return (
-    <motion.div
-      className="fixed pointer-events-none z-50 mix-blend-difference"
-      animate={{
-        x: mousePosition.x - 20,
-        y: mousePosition.y - 20,
-      }}
-      transition={{ type: "spring", stiffness: 500, damping: 28 }}
-    >
-      <div className="w-10 h-10 bg-white rounded-full opacity-20 blur-sm" />
-    </motion.div>
-  );
-});
-
-CursorGlow.displayName = 'CursorGlow';
+        {char === ' ' ? '\u00A0' : char}
+      </span>
+    ))}
+  </span>
+);
 
 const Hero = () => {
-  const { getPersonalInfo, getSocialLinks } = usePortfolioData();
+  const { getPersonalInfo, getSocialLinks, getProjectsData } = usePortfolioData();
   const personalInfo = getPersonalInfo();
-  const socialLinks = getSocialLinks();
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
+  const socialLinks  = getSocialLinks();
+  const projects     = getProjectsData();
 
-  const scrollToAbout = () => {
-    const aboutSection = document.getElementById('about');
-    if (aboutSection) {
-      aboutSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  // Grab latest project for "Currently building" card
+  const latestProject = projects?.[0] ?? null;
 
-  const typewriterTexts = [
-    'Full Stack Developer',
-    'MERN Stack Specialist',
-    'React Enthusiast',
-    'Problem Solver',
-    'Tech Innovator',
-  ];
+  const sectionRef   = useRef(null);
+  const firstNameRef = useRef(null);
+  const lastNameRef  = useRef(null);
+  const sublineRef   = useRef(null);
+  const bioRef       = useRef(null);
+  const ctaRef       = useRef(null);
+  const socRef       = useRef(null);
+  const cardRef      = useRef(null);
+  const scrollRef    = useRef(null);
+
+  const firstName = personalInfo?.name?.split(' ')[0] ?? 'Kunal';
+  const lastName  = personalInfo?.name?.split(' ')[1] ?? 'Lohaniya';
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoaded(true), 1000);
-    return () => clearTimeout(timer);
+    const ctx = gsap.context(() => {
+      // ── SplitText character reveal ──────────────────────────
+      const firstChars = firstNameRef.current?.querySelectorAll('.hero-char') ?? [];
+      const lastChars  = lastNameRef.current?.querySelectorAll('.hero-char') ?? [];
+      const allChars   = [...firstChars, ...lastChars];
+
+      gsap.set(allChars, { opacity: 0, y: -60, rotation: -5 });
+
+      const tl = gsap.timeline({ delay: 0.1 });
+
+      // First name chars
+      tl.to(firstChars, {
+        opacity: 1,
+        y: 0,
+        rotation: 0,
+        duration: 0.7,
+        ease: 'power3.out',
+        stagger: 0.04,
+      });
+
+      // Last name chars (slight overlap)
+      tl.to(lastChars, {
+        opacity: 1,
+        y: 0,
+        rotation: 0,
+        duration: 0.7,
+        ease: 'power3.out',
+        stagger: 0.04,
+      }, '-=0.35');
+
+      // Subline
+      tl.fromTo(sublineRef.current,
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+        '-=0.1'
+      );
+
+      // Bio
+      tl.fromTo(bioRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+        '-=0.2'
+      );
+
+      // CTA row
+      tl.fromTo(ctaRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' },
+        '-=0.2'
+      );
+
+      // Social row
+      tl.fromTo(socRef.current,
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' },
+        '-=0.15'
+      );
+
+      // Terminal card
+      tl.fromTo(cardRef.current,
+        { opacity: 0, x: 40 },
+        { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out' },
+        '-=0.5'
+      );
+
+      // Scroll indicator
+      tl.fromTo(scrollRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.5 },
+        '-=0.2'
+      );
+
+    }, sectionRef);
+
+    return () => ctx.revert();
   }, []);
 
   return (
-    <>
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-      {/* Premium Animated Background */}
-      <div className="absolute inset-0 z-0">
-        <AnimatedBackground />
-      </div>
-
-      {/* Premium Gradient Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-50/90 via-transparent to-secondary-50/90 dark:from-dark-900/90 dark:via-transparent dark:to-dark-800/90 z-10" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-10" />
-
-      {/* Floating Glassmorphism Elements */}
-      <motion.div 
-        className="absolute top-20 left-10 w-32 h-32 glass-premium rounded-full blur-xl z-10"
-        animate={{ 
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.6, 0.3]
-        }}
-        transition={{ duration: 4, repeat: Infinity }}
-      />
-      <motion.div 
-        className="absolute bottom-20 right-10 w-48 h-48 glass-premium rounded-full blur-xl z-10"
-        animate={{ 
-          scale: [1.2, 1, 1.2],
-          opacity: [0.6, 0.3, 0.6]
-        }}
-        transition={{ duration: 5, repeat: Infinity }}
-      />
-
-      {/* Premium Content */}
-      <div className="relative z-20 container-premium text-center">
-        <AnimatePresence>
-          {isLoaded && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="space-y-8"
-            >
-              {/* Premium Greeting */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="inline-flex items-center px-6 py-3 rounded-full glass-premium border border-white/20 dark:border-white/10 shadow-xl"
-              >
-                <span className="text-sm font-medium text-gray-800 dark:text-slate-100 font-heading">
-                  👋 Hello, I'm
-                </span>
-              </motion.div>
-
-              {/* Premium Name with Glow Effect */}
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                className="heading-xl"
-              >
-                <span className="gradient-text-premium text-shadow-premium relative">
-                  {personalInfo.name}
-                  <motion.div
-                    className="absolute inset-0 gradient-text-premium blur-sm opacity-50"
-                    animate={{ opacity: [0.3, 0.7, 0.3] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                </span>
-              </motion.h1>
-
-              {/* Premium Typewriter Title */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.8 }}
-                className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900 dark:text-slate-50 min-h-[3rem] flex items-center justify-center font-heading"
-              >
-                <TypewriterText texts={typewriterTexts} speed={150} />
-              </motion.div>
-
-              {/* Premium Bio */}
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 1.0 }}
-                className="text-body-lg text-gray-700 dark:text-slate-200 max-w-3xl mx-auto leading-relaxed"
-              >
-                {personalInfo.bio}
-              </motion.p>
-
-              {/* Premium Action Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 1.2 }}
-                className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-              >
-                <motion.a
-                  href={personalInfo.resumeUrl}
-                  download
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="btn-glow inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold group"
-                >
-                  <span className="relative z-10 flex items-center gap-3">
-                    <FaDownload className="w-5 h-5" />
-                    Download Resume
-                  </span>
-                </motion.a>
-
-                <motion.button
-                  onClick={() => setShowPreview(true)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="btn-outline inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold group"
-                >
-                  <span className="relative z-10 flex items-center gap-3">
-                    <FaEye className="w-5 h-5" />
-                    Preview Resume
-                  </span>
-                </motion.button>
-
-                <motion.button
-                  onClick={scrollToAbout}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="btn-outline inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold group"
-                >
-                  <span className="relative z-10 flex items-center gap-3">
-                    Learn More
-                    <FaArrowDown className="w-4 h-4" />
-                  </span>
-                </motion.button>
-              </motion.div>
-
-              {/* Premium Social Links */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 1.4 }}
-                className="flex justify-center space-x-6 pt-8"
-              >
-                {[
-                  { icon: FaGithub, href: socialLinks.github, label: 'GitHub' },
-                  { icon: FaLinkedin, href: socialLinks.linkedin, label: 'LinkedIn' },
-                  { icon: FaTwitter, href: socialLinks.twitter, label: 'Twitter' },
-                  { icon: FaEnvelope, href: socialLinks.email, label: 'Email' },
-                ].map(({ icon: Icon, href, label }, index) => (
-                  <motion.a
-                    key={label}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 1.6 + index * 0.1 }}
-                    whileHover={{ scale: 1.2, rotate: 5 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="p-4 rounded-full glass-premium border border-white/20 dark:border-white/20 text-gray-800 dark:text-slate-100 hover:text-primary-600 dark:hover:text-violet-400 hover:bg-primary-50 dark:hover:bg-violet-500/20 transition-all duration-300 relative overflow-hidden group interactive-glow"
-                    aria-label={label}
-                  >
-                    <Icon className="w-6 h-6 relative z-10" />
-                  </motion.a>
-                ))}
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Premium Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 2 }}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20"
+    <section
+      id="home"
+      ref={sectionRef}
+      style={{
+        minHeight: '100vh',
+        paddingTop: 64, // navbar height
+        display: 'grid',
+        gridTemplateColumns: '1fr',
+        alignItems: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+        background: 'var(--base)',
+      }}
+    >
+      {/* Section number texture */}
+      <span
+        className="section-number-bg"
+        style={{ top: '-40px', left: '-20px', pointerEvents: 'none', userSelect: 'none' }}
       >
-        <motion.button
-          onClick={scrollToAbout}
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="p-3 rounded-full glass-premium border border-white/20 dark:border-white/20 text-gray-800 dark:text-slate-100 hover:text-primary-600 dark:hover:text-violet-400 transition-colors duration-300 relative overflow-hidden group interactive-glow"
-          aria-label="Scroll down"
-        >
-          <FaArrowDown className="w-5 h-5 relative z-10" />
-        </motion.button>
-      </motion.div>
-    </section>
+        01
+      </span>
 
-      {/* Resume Preview Modal */}
-      <AnimatePresence>
-        {showPreview && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] flex items-center justify-center p-4"
-            style={{ backgroundColor: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}
-            onClick={() => setShowPreview(false)}
+      <div
+        className="container-editorial"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr auto',
+          gap: '48px',
+          alignItems: 'center',
+          paddingTop: 80,
+          paddingBottom: 80,
+        }}
+      >
+        {/* LEFT — main content */}
+        <div style={{ maxWidth: 720 }}>
+
+          {/* ALL-CAPS label */}
+          <p className="label-caps" style={{ marginBottom: 32 }}>
+            Full Stack Developer — Faridabad, India
+          </p>
+
+          {/* Hero name with split-text reveal */}
+          <h1
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'var(--hero-size)',
+              fontWeight: 800,
+              lineHeight: 0.9,
+              letterSpacing: '-0.02em',
+              color: 'var(--offwhite)',
+              marginBottom: 8,
+            }}
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ duration: 0.3 }}
-              className="relative w-full max-w-4xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden"
-              style={{ height: '90vh' }}
-              onClick={(e) => e.stopPropagation()}
+            <span ref={firstNameRef} style={{ display: 'block' }}>
+              <SplitChars text={firstName} />
+            </span>
+            <span
+              ref={lastNameRef}
+              style={{ display: 'block', color: 'var(--amber)' }}
             >
-              {/* Modal Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-lg font-semibold text-gray-800 dark:text-white font-heading">Resume Preview</h2>
-                <div className="flex items-center gap-3">
-                  <motion.a
-                    href={personalInfo.resumeUrl}
-                    download
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium transition-colors duration-200"
-                  >
-                    <FaDownload className="w-4 h-4" />
-                    Download
-                  </motion.a>
-                  <motion.button
-                    onClick={() => setShowPreview(false)}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="p-2 rounded-lg text-gray-500 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-                    aria-label="Close preview"
-                  >
-                    <FaTimes className="w-5 h-5" />
-                  </motion.button>
-                </div>
+              <SplitChars text={lastName} />
+            </span>
+            {/* Blinking cursor */}
+            <span className="hero-cursor" style={{ fontSize: 'clamp(48px, 7vw, 96px)' }}>▮</span>
+          </h1>
+
+          {/* Subline */}
+          <p
+            ref={sublineRef}
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 'clamp(1rem, 2vw, 1.25rem)',
+              color: 'var(--muted)',
+              marginTop: 28,
+              marginBottom: 24,
+              letterSpacing: '0.02em',
+            }}
+          >
+            {personalInfo?.title} &mdash; {personalInfo?.subtitle}
+          </p>
+
+          {/* Bio */}
+          <p
+            ref={bioRef}
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.9rem',
+              color: 'var(--muted)',
+              lineHeight: 1.75,
+              maxWidth: 560,
+              marginBottom: 40,
+            }}
+          >
+            {personalInfo?.bio}
+          </p>
+
+          {/* CTA buttons */}
+          <div ref={ctaRef} style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 48 }}>
+            <a
+              href={personalInfo?.resumeUrl}
+              download
+              className="btn-primary"
+            >
+              <FaDownload style={{ width: 12, height: 12 }} />
+              Download Resume
+            </a>
+            {personalInfo?.resumePreviewUrl && (
+              <a
+                href={personalInfo?.resumePreviewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-outline"
+              >
+                Preview Resume
+              </a>
+            )}
+            <button
+              className="btn-outline"
+              onClick={() => {
+                document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              View Work
+              <FaArrowDown style={{ width: 11, height: 11 }} />
+            </button>
+          </div>
+
+          {/* Social links */}
+          <div ref={socRef} style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+            <span className="label-caps" style={{ marginRight: 8 }}>Find me</span>
+
+            {[
+              { href: socialLinks?.github,   icon: <FaGithub />,   label: 'GitHub' },
+              { href: socialLinks?.linkedin, icon: <FaLinkedin />, label: 'LinkedIn' },
+              { href: socialLinks?.email,    label: 'Email', text: '✉' },
+            ].map(({ href, icon, label, text }) => (
+              <a
+                key={label}
+                href={href}
+                target={href?.startsWith('http') ? '_blank' : undefined}
+                rel="noopener noreferrer"
+                aria-label={label}
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  color: 'var(--muted)',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  transition: 'color 0.2s ease',
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = 'var(--offwhite)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'var(--muted)'}
+              >
+                {icon || text}
+                <span>{label}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* RIGHT — "Currently building" terminal card */}
+        <div
+          ref={cardRef}
+          style={{ minWidth: 280, maxWidth: 340 }}
+          className="hide-on-mobile"
+        >
+          {latestProject && (
+            <div className="terminal-card">
+              {/* Titlebar dots */}
+              <div style={{
+                display: 'flex', gap: 6, marginBottom: 16, paddingTop: 4,
+              }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#C0392B', display: 'block' }} />
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#E8C547', display: 'block' }} />
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#22C55E', display: 'block' }} />
               </div>
-              {/* Iframe */}
-              <iframe
-                src={personalInfo.resumePreviewUrl}
-                title="Resume Preview"
-                className="w-full"
-                style={{ height: 'calc(90vh - 65px)', border: 'none' }}
-                allow="autoplay"
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+
+              <p className="terminal-prompt">
+                $ currently building:
+              </p>
+              <p style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.85rem',
+                color: 'var(--offwhite)',
+                fontWeight: 500,
+                marginTop: 8,
+                marginBottom: 12,
+              }}>
+                {latestProject.title}
+              </p>
+
+              <p style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.72rem',
+                color: 'var(--muted)',
+                lineHeight: 1.65,
+                marginBottom: 16,
+              }}>
+                {latestProject.description.slice(0, 120)}…
+              </p>
+
+              {/* Tech stack mini-tags */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {latestProject.technologies.slice(0, 4).map(tech => (
+                  <span key={tech} className="tech-tag">{tech}</span>
+                ))}
+              </div>
+
+              {/* Status line */}
+              <div style={{
+                marginTop: 16,
+                paddingTop: 12,
+                borderTop: '1px solid var(--border-dim)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+              }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--success)', display: 'inline-block' }} />
+                <span className="label-caps" style={{ color: 'var(--success)', fontSize: '0.6rem' }}>
+                  {latestProject.status}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <div
+        ref={scrollRef}
+        style={{
+          position: 'absolute',
+          bottom: 32,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+        <span className="label-caps" style={{ fontSize: '0.6rem' }}>Scroll</span>
+        <div style={{
+          width: 1,
+          height: 48,
+          background: 'linear-gradient(to bottom, var(--border-std), transparent)',
+        }} />
+      </div>
+
+      {/* Full-bleed bottom divider */}
+      <hr className="hr-editorial" style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }} />
+
+      {/* Hide right panel on mobile */}
+      <style>{`
+        .hide-on-mobile { display: block; }
+        @media (max-width: 900px) {
+          .hide-on-mobile { display: none !important; }
+        }
+      `}</style>
+    </section>
   );
 };
 

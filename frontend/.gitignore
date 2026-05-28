@@ -43,3 +43,6 @@ coverage/
 
 # Prettier cache
 .prettiercache
+
+# Local Netlify folder
+.netlify
