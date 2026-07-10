@@ -1,12 +1,17 @@
 [build]
   command = "npm run build"
   publish = "frontend/dist"
+  functions = "frontend/netlify/functions"
 
 [build.environment]
   NODE_VERSION = "20"
-  VITE_RECAPTCHA_SITE_KEY = "6LdVtkwsAAAAAKhPAfLpYaz4Hu2hWxsG8Qd_5wAA"
+  VITE_RECAPTCHA_SITE_KEY = "6Lc2gwAtAAAAABjAb8mu0ly_paEMmJd6OBSTMXMa"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[dev]
+  command = "npm run dev"
+  targetPort = 5174
