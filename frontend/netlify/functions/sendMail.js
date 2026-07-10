@@ -32,7 +32,7 @@ export const handler = async (event) => {
 
     const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
     if (!recaptchaSecret) {
-      return json(500, { success: false, error: 'Internal server error. Please retry.' });
+      return json(500, { success: false, error: 'Missing RECAPTCHA_SECRET_KEY env variable.' });
     }
 
     const recaptchaPayload = new URLSearchParams({
@@ -67,7 +67,7 @@ export const handler = async (event) => {
     const gmailPass = process.env.GMAIL_APP_PASS;
 
     if (!gmailUser || !gmailPass) {
-      return json(500, { success: false, error: 'Internal server error. Please retry.' });
+      return json(500, { success: false, error: `Missing Gmail credentials. GMAIL_USER defined: ${!!gmailUser}, GMAIL_APP_PASS defined: ${!!gmailPass}` });
     }
 
     const safeName = escapeHtml(name);
@@ -126,7 +126,7 @@ export const handler = async (event) => {
 
     transporter
       .sendMail({
-        from: `"Kunal Lohar" <${gmailUser}>`,
+        from: `"Kunal Lohaniya" <${gmailUser}>`,
         to: safeEmail,
         subject: 'Message received — Kunal Lohaniya',
         html: `
@@ -147,7 +147,7 @@ export const handler = async (event) => {
               Until then — appreciate you reaching out.
             </p>
             <div style="border-top:1px solid #333;padding-top:20px;">
-              <p style="font-size:13px;margin:0 0 4px">Kunal Lohar</p>
+              <p style="font-size:13px;margin:0 0 4px">Kunal Lohaniya</p>
               <p style="font-size:11px;color:#F59E0B;letter-spacing:0.1em;
                         margin:0">
                 SOFTWARE ENGINEER — KUNALPORTFOLIO.IN
@@ -167,6 +167,6 @@ export const handler = async (event) => {
     return json(200, { success: true, message: 'Transmission successful.' });
   } catch (error) {
     console.error('sendMail hard failure:', error);
-    return json(500, { success: false, error: 'Internal server error. Please retry.' });
+    return json(500, { success: false, error: `sendMail hard failure: ${error.message}` });
   }
 };

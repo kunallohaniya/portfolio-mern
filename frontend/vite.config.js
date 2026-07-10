@@ -33,7 +33,13 @@ export default defineConfig({
     port: 5174,
     host: true,
     open: true,
-    strictPort: false
+    strictPort: false,
+    proxy: {
+      '/.netlify/functions': {
+        target: 'http://localhost:8888',
+        changeOrigin: true
+      }
+    }
   },
   build: {
     target: 'esnext',
