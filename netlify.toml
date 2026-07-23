@@ -11,13 +11,6 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["nodemailer"]
-
-[[redirects]]
-  from = "/.netlify/functions/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-  force = true
 
 [[redirects]]
   from = "/*"
@@ -27,4 +20,3 @@
 [dev]
   command = "npm run dev"
   targetPort = 5174
-
