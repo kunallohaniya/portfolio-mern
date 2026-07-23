@@ -5,6 +5,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  VITE_RECAPTCHA_SITE_KEY = "6LcuYWEtAAAAADkDa8k86iTjoLSe9asJeO1Ksni2"
 
 [functions]
   node_bundler = "esbuild"
