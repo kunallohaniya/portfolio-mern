@@ -108,8 +108,12 @@ const ContactForm = React.memo(() => {
     }
 
     if (!recaptchaToken) {
-      toast.error('Please complete the reCAPTCHA verification to prove you are a human.');
-      return;
+      // In production always require reCAPTCHA. In dev mode (vite DEV flag) allow bypass.
+      const isDev = import.meta.env.DEV;
+      if (!isDev) {
+        toast.error('Please complete the reCAPTCHA verification to prove you are a human.');
+        return;
+      }
     }
     
     setIsSubmitting(true);

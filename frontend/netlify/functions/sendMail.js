@@ -30,25 +30,33 @@ export const handler = async (event) => {
       return json(400, { success: false, error: 'Missing required fields.' });
     }
 
-    const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
-    if (!recaptchaSecret) {
-      return json(500, { success: false, error: 'Missing RECAPTCHA_SECRET_KEY env variable.' });
-    }
+    // Skip reCAPTCHA in local dev mode (SKIP_RECAPTCHA=true in root .env)
+    const skipRecaptcha = process.env.SKIP_RECAPTCHA === 'true';
 
-    const recaptchaPayload = new URLSearchParams({
-      secret: recaptchaSecret,
-      response: recaptchaToken
-    }).toString();
+    if (!skipRecaptcha) {
+      const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+      if (!recaptchaSecret) {
+        return json(500, { success: false, error: 'Missing RECAPTCHA_SECRET_KEY env variable.' });
+      }
 
-    const recaptchaRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: recaptchaPayload
-    });
+      const recaptchaPayload = new URLSearchParams({
+        secret: recaptchaSecret,
+        response: recaptchaToken
+      }).toString();
 
-    const recaptchaData = await recaptchaRes.json();
-    if (!recaptchaData.success) {
-      return json(400, { success: false, error: 'reCAPTCHA verification failed.' });
+      const recaptchaRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: recaptchaPayload
+      });
+
+      const recaptchaData = await recaptchaRes.json();
+      if (!recaptchaData.success) {
+        console.error('reCAPTCHA failed:', recaptchaData['error-codes']);
+        return json(400, { success: false, error: 'reCAPTCHA verification failed.' });
+      }
+    } else {
+      console.log('[DEV] reCAPTCHA verification skipped (SKIP_RECAPTCHA=true).');
     }
 
     const forwardedFor = event.headers['x-forwarded-for'] || event.headers['X-Forwarded-For'] || 'unknown';
