@@ -1,12 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { toast } from 'react-hot-toast';
 import { usePortfolioData } from '../hooks/usePortfolioData';
-import ReCAPTCHA from 'react-google-recaptcha';
 
-// Premium Contact Form Component
+// Premium Contact Form Component — Honeypot spam protection (no reCAPTCHA)
 const ContactForm = React.memo(() => {
-  const recaptchaRef = useRef(null);
-  const [recaptchaToken, setRecaptchaToken] = useState(null);
+  // Honeypot ref — bots fill this, humans don't see it
+  const honeypotRef = useRef(null);
+  // Track form load time to catch instant-submit bots
+  const formLoadTime = useRef(Date.now());
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -18,11 +20,13 @@ const ContactForm = React.memo(() => {
   const [errors, setErrors] = useState({});
   const [rateLimitError, setRateLimitError] = useState(() => {
     try {
-      const stored = localStorage.getItem("portfolio_contact_log");
+      const stored = localStorage.getItem('portfolio_contact_log');
       if (stored) {
         const log = JSON.parse(stored);
         const twentyFourHoursAgo = new Date().getTime() - 24 * 60 * 60 * 1000;
-        const filtered = log.filter(timestamp => new Date(timestamp).getTime() > twentyFourHoursAgo);
+        const filtered = log.filter(
+          timestamp => new Date(timestamp).getTime() > twentyFourHoursAgo
+        );
         if (filtered.length >= 5) {
           return '[ RATE LIMIT ] — 5 messages already transmitted in the last 24h. Try again tomorrow.';
         }
@@ -62,7 +66,7 @@ const ContactForm = React.memo(() => {
     }
 
     setErrors(newErrors);
-    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
+    return { isValid: Object.keys(newErrors).length === 0 };
   };
 
   const handleChange = (e) => {
@@ -76,46 +80,36 @@ const ContactForm = React.memo(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
-    
+
     const validationResult = validateForm();
     if (!validationResult.isValid) {
       toast.error('Please fix the errors in the form before submitting.');
       return;
     }
 
-    // Rate Limiting Logic Check
+    // Client-side rate limit check
     let contactLog = [];
     try {
-      const stored = localStorage.getItem("portfolio_contact_log");
-      if (stored) {
-        contactLog = JSON.parse(stored);
-      }
+      const stored = localStorage.getItem('portfolio_contact_log');
+      if (stored) contactLog = JSON.parse(stored);
     } catch (err) {
-      console.error("Error reading rate limit log:", err);
+      console.error('Error reading rate limit log:', err);
     }
 
     const now = new Date();
     const twentyFourHoursAgo = now.getTime() - 24 * 60 * 60 * 1000;
-    const filteredLog = contactLog.filter(timestamp => {
-      const time = new Date(timestamp).getTime();
-      return time > twentyFourHoursAgo;
-    });
+    const filteredLog = contactLog.filter(
+      timestamp => new Date(timestamp).getTime() > twentyFourHoursAgo
+    );
 
     if (filteredLog.length >= 5) {
-      setRateLimitError('[ RATE LIMIT ] — 5 messages already transmitted in the last 24h. Try again tomorrow.');
+      setRateLimitError(
+        '[ RATE LIMIT ] — 5 messages already transmitted in the last 24h. Try again tomorrow.'
+      );
       toast.error('Submission blocked: Rate limit exceeded.');
       return;
     }
 
-    if (!recaptchaToken) {
-      // In production always require reCAPTCHA. In dev mode (vite DEV flag) allow bypass.
-      const isDev = import.meta.env.DEV;
-      if (!isDev) {
-        toast.error('Please complete the reCAPTCHA verification to prove you are a human.');
-        return;
-      }
-    }
-    
     setIsSubmitting(true);
 
     try {
@@ -127,7 +121,10 @@ const ContactForm = React.memo(() => {
           email: formData.email,
           subject: formData.subject,
           message: formData.message,
-          recaptchaToken
+          // Honeypot value — should be empty for real humans
+          _hp: honeypotRef.current ? honeypotRef.current.value : '',
+          // Time elapsed since form loaded (ms) — bots submit instantly
+          _ts: Date.now() - formLoadTime.current
         })
       });
 
@@ -141,7 +138,9 @@ const ContactForm = React.memo(() => {
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error('Function route not found. Run this app with Netlify Dev so /.netlify/functions is available.');
+          throw new Error(
+            'Function route not found. Ensure the app is deployed on Netlify.'
+          );
         }
         if (response.status === 429) {
           setRateLimitError(result.error);
@@ -154,16 +153,18 @@ const ContactForm = React.memo(() => {
       const finalLog = [...filteredLog, new Date().toISOString()];
       localStorage.setItem('portfolio_contact_log', JSON.stringify(finalLog));
 
-      toast.success('[ TRANSMITTED ] — Message received. A confirmation has been dispatched to your inbox.');
+      toast.success(
+        '[ TRANSMITTED ] — Message received. A confirmation has been dispatched to your inbox.'
+      );
       setFormData({ name: '', email: '', subject: '', message: '' });
       setErrors({});
-      if (recaptchaRef.current) recaptchaRef.current.reset();
-      setRecaptchaToken(null);
       setRateLimitError('');
-
+      formLoadTime.current = Date.now();
     } catch (error) {
       console.error('Transmission failed:', error);
-      toast.error('[ ERROR ] — Transmission failed. Please retry or reach out directly via email.');
+      toast.error(
+        '[ ERROR ] — Transmission failed. Please retry or reach out directly via email.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -174,17 +175,38 @@ const ContactForm = React.memo(() => {
       <h3 className="text-xl font-bold text-[var(--offwhite)] mb-8 font-display uppercase tracking-wider">
         TRANSMIT DISPATCH //
       </h3>
-      
-      <form 
+
+      <form
         name="contact"
         method="POST"
-        onSubmit={handleSubmit} 
-        className="space-y-6" 
+        onSubmit={handleSubmit}
+        className="space-y-6"
         noValidate
       >
+        {/* Honeypot field — hidden from humans, traps bots */}
+        <input
+          ref={honeypotRef}
+          type="text"
+          name="_hp_field"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            left: '-9999px',
+            width: '1px',
+            height: '1px',
+            opacity: 0,
+            pointerEvents: 'none'
+          }}
+        />
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="font-mono text-xs">
-            <label htmlFor="name" className="block text-[var(--muted)] mb-2 uppercase tracking-wider">
+            <label
+              htmlFor="name"
+              className="block text-[var(--muted)] mb-2 uppercase tracking-wider"
+            >
               NAME *
             </label>
             <input
@@ -198,11 +220,16 @@ const ContactForm = React.memo(() => {
               className="w-full px-4 py-3 bg-[var(--base)] text-[var(--offwhite)] border border-[var(--border-dim)] outline-none focus:border-[var(--amber)] transition-colors duration-250 cursor-none"
               placeholder="YOUR NAME"
             />
-            {errors.name && <p className="mt-1 text-[var(--alert)]">{errors.name}</p>}
+            {errors.name && (
+              <p className="mt-1 text-[var(--alert)]">{errors.name}</p>
+            )}
           </div>
-          
+
           <div className="font-mono text-xs">
-            <label htmlFor="email" className="block text-[var(--muted)] mb-2 uppercase tracking-wider">
+            <label
+              htmlFor="email"
+              className="block text-[var(--muted)] mb-2 uppercase tracking-wider"
+            >
               EMAIL ADDRESS *
             </label>
             <input
@@ -216,12 +243,17 @@ const ContactForm = React.memo(() => {
               className="w-full px-4 py-3 bg-[var(--base)] text-[var(--offwhite)] border border-[var(--border-dim)] outline-none focus:border-[var(--amber)] transition-colors duration-250 cursor-none"
               placeholder="YOUR EMAIL"
             />
-            {errors.email && <p className="mt-1 text-[var(--alert)]">{errors.email}</p>}
+            {errors.email && (
+              <p className="mt-1 text-[var(--alert)]">{errors.email}</p>
+            )}
           </div>
         </div>
-        
+
         <div className="font-mono text-xs">
-          <label htmlFor="subject" className="block text-[var(--muted)] mb-2 uppercase tracking-wider">
+          <label
+            htmlFor="subject"
+            className="block text-[var(--muted)] mb-2 uppercase tracking-wider"
+          >
             SUBJECT *
           </label>
           <input
@@ -235,11 +267,16 @@ const ContactForm = React.memo(() => {
             className="w-full px-4 py-3 bg-[var(--base)] text-[var(--offwhite)] border border-[var(--border-dim)] outline-none focus:border-[var(--amber)] transition-colors duration-250 cursor-none"
             placeholder="SUBJECT HEADING"
           />
-          {errors.subject && <p className="mt-1 text-[var(--alert)]">{errors.subject}</p>}
+          {errors.subject && (
+            <p className="mt-1 text-[var(--alert)]">{errors.subject}</p>
+          )}
         </div>
-        
+
         <div className="font-mono text-xs">
-          <label htmlFor="message" className="block text-[var(--muted)] mb-2 uppercase tracking-wider">
+          <label
+            htmlFor="message"
+            className="block text-[var(--muted)] mb-2 uppercase tracking-wider"
+          >
             MESSAGE *
           </label>
           <textarea
@@ -253,23 +290,14 @@ const ContactForm = React.memo(() => {
             className="w-full px-4 py-3 bg-[var(--base)] text-[var(--offwhite)] border border-[var(--border-dim)] outline-none focus:border-[var(--amber)] transition-colors duration-250 resize-none cursor-none"
             placeholder="TYPE DISPATCH DETAILS HERE..."
           />
-          {errors.message && <p className="mt-1 text-[var(--alert)]">{errors.message}</p>}
-        </div>
-
-        {/* Google reCAPTCHA Verification */}
-        <div style={{ display: 'flex', justifyContent: 'center', margin: '24px 0 12px 0' }}>
-          <ReCAPTCHA
-            ref={recaptchaRef}
-            sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LeVEbssAAAAACgk-tSlCCMESdNoVDRecI6_y-11"}
-            onChange={(token) => setRecaptchaToken(token)}
-            onExpired={() => setRecaptchaToken(null)}
-            theme="dark"
-          />
+          {errors.message && (
+            <p className="mt-1 text-[var(--alert)]">{errors.message}</p>
+          )}
         </div>
 
         {/* Rate Limiting Error Inline Display */}
         {rateLimitError && (
-          <div 
+          <div
             style={{
               fontFamily: 'var(--font-mono)',
               fontSize: '11px',
@@ -313,21 +341,44 @@ const ContactInfo = React.memo(() => {
           CHANNELS //
         </h3>
         <p className="text-[var(--muted)] leading-relaxed mb-6">
-          Reach out directly regarding active inquiries, design collaborations, or engineering role discussions.
+          Reach out directly regarding active inquiries, design collaborations,
+          or engineering role discussions.
         </p>
       </div>
 
       <div className="space-y-4">
         {[
           { label: 'LOCATION', value: personalInfo.location },
-          { label: 'EMAIL', value: personalInfo.email, href: `mailto:${personalInfo.email}` },
-          { label: 'LINKEDIN', value: 'kunallohaniya', href: socialLinks.linkedin },
-          { label: 'GITHUB', value: 'kunallohaniya', href: socialLinks.github }
+          {
+            label: 'EMAIL',
+            value: personalInfo.email,
+            href: `mailto:${personalInfo.email}`
+          },
+          {
+            label: 'LINKEDIN',
+            value: 'kunallohaniya',
+            href: socialLinks.linkedin
+          },
+          {
+            label: 'GITHUB',
+            value: 'kunallohaniya',
+            href: socialLinks.github
+          }
         ].map((item, index) => (
-          <div key={index} className="p-4 border border-[var(--border-dim)] bg-[var(--surface)]">
-            <span className="text-[var(--muted)] block mb-1 uppercase tracking-wider">{item.label}</span>
+          <div
+            key={index}
+            className="p-4 border border-[var(--border-dim)] bg-[var(--surface)]"
+          >
+            <span className="text-[var(--muted)] block mb-1 uppercase tracking-wider">
+              {item.label}
+            </span>
             {item.href ? (
-              <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-[var(--amber)] hover:underline cursor-none">
+              <a
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--amber)] hover:underline cursor-none"
+              >
                 {item.value}
               </a>
             ) : (
@@ -339,7 +390,9 @@ const ContactInfo = React.memo(() => {
 
       <div className="p-6 border border-[var(--border-dim)] bg-[var(--surface)] flex items-center gap-3">
         <span className="w-2 h-2 rounded-full bg-[var(--success)] animate-pulse" />
-        <span className="text-[var(--success)] tracking-wider">ACTIVE & AVAILABLE FOR NEW PROJECTS</span>
+        <span className="text-[var(--success)] tracking-wider">
+          ACTIVE &amp; AVAILABLE FOR NEW PROJECTS
+        </span>
       </div>
     </div>
   );
@@ -349,21 +402,30 @@ ContactInfo.displayName = 'ContactInfo';
 
 const Contact = () => {
   return (
-    <section id="contact" className="section-gap relative overflow-hidden bg-[var(--base)]">
+    <section
+      id="contact"
+      className="section-gap relative overflow-hidden bg-[var(--base)]"
+    >
       {/* Editorial section number texture */}
-      <span className="section-number-bg" style={{ top: '-60px', right: '40px' }}>06</span>
+      <span
+        className="section-number-bg"
+        style={{ top: '-60px', right: '40px' }}
+      >
+        06
+      </span>
 
       <div className="container-editorial relative z-10">
-        
         {/* Header */}
         <div className="mb-20">
           <p className="label-caps-amber mb-4">CORRESPONDENCE</p>
           <h2 className="text-display mb-6">
-            ESTABLISH<br />
+            ESTABLISH
+            <br />
             CONNECTION
           </h2>
           <p className="text-sm text-[var(--muted)] max-w-xl font-mono leading-relaxed">
-            Get in touch to initiate custom project estimates, engineering consultations, or job placement procedures.
+            Get in touch to initiate custom project estimates, engineering
+            consultations, or job placement procedures.
           </p>
         </div>
 

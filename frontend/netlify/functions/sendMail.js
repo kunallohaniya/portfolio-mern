@@ -3,6 +3,8 @@ import nodemailer from 'nodemailer';
 const rateLimitStore = new Map();
 const MAX_MESSAGES_PER_24H = 5;
 const WINDOW_MS = 24 * 60 * 60 * 1000;
+// Minimum time (ms) a human takes to fill out a form — bots are instant
+const MIN_SUBMIT_TIME_MS = 3000;
 
 const json = (statusCode, payload) => ({
   statusCode,
@@ -24,65 +26,66 @@ export const handler = async (event) => {
   }
 
   try {
-    const { name, email, subject, message, recaptchaToken } = JSON.parse(event.body || '{}');
+    const { name, email, subject, message, _hp, _ts } = JSON.parse(
+      event.body || '{}'
+    );
 
-    if (!name || !email || !subject || !message || !recaptchaToken) {
+    // --- Honeypot check: bots fill in hidden fields, humans don't ---
+    if (_hp && _hp.trim().length > 0) {
+      console.warn('Honeypot triggered — bot submission blocked.');
+      // Return 200 so bots think they succeeded (don't reveal the block)
+      return json(200, { success: true, message: 'Transmission successful.' });
+    }
+
+    // --- Timing check: block submissions faster than a human can type ---
+    const elapsed = typeof _ts === 'number' ? _ts : MIN_SUBMIT_TIME_MS + 1;
+    if (elapsed < MIN_SUBMIT_TIME_MS) {
+      console.warn(`Timing check failed — submitted in ${elapsed}ms (bot?).`);
+      return json(200, { success: true, message: 'Transmission successful.' });
+    }
+
+    // --- Required field validation ---
+    if (!name || !email || !subject || !message) {
       return json(400, { success: false, error: 'Missing required fields.' });
     }
 
-    // Skip reCAPTCHA in local dev mode (SKIP_RECAPTCHA=true in root .env)
-    const skipRecaptcha = process.env.SKIP_RECAPTCHA === 'true';
-
-    if (!skipRecaptcha) {
-      const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
-      if (!recaptchaSecret) {
-        return json(500, { success: false, error: 'Missing RECAPTCHA_SECRET_KEY env variable.' });
-      }
-
-      const recaptchaPayload = new URLSearchParams({
-        secret: recaptchaSecret,
-        response: recaptchaToken
-      }).toString();
-
-      const recaptchaRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: recaptchaPayload
-      });
-
-      const recaptchaData = await recaptchaRes.json();
-      if (!recaptchaData.success) {
-        console.error('reCAPTCHA failed:', recaptchaData['error-codes']);
-        return json(400, { success: false, error: 'reCAPTCHA verification failed.' });
-      }
-    } else {
-      console.log('[DEV] reCAPTCHA verification skipped (SKIP_RECAPTCHA=true).');
-    }
-
-    const forwardedFor = event.headers['x-forwarded-for'] || event.headers['X-Forwarded-For'] || 'unknown';
+    // --- Server-side IP rate limiting ---
+    const forwardedFor =
+      event.headers['x-forwarded-for'] ||
+      event.headers['X-Forwarded-For'] ||
+      'unknown';
     const ip = forwardedFor.split(',')[0].trim() || 'unknown';
     const now = Date.now();
-    const recentTimestamps = (rateLimitStore.get(ip) || []).filter((timestamp) => now - timestamp < WINDOW_MS);
+    const recentTimestamps = (rateLimitStore.get(ip) || []).filter(
+      timestamp => now - timestamp < WINDOW_MS
+    );
 
     if (recentTimestamps.length >= MAX_MESSAGES_PER_24H) {
       return json(429, {
         success: false,
-        error: '[ RATE LIMIT ] — 5 messages already transmitted in the last 24h. Try again tomorrow.'
+        error:
+          '[ RATE LIMIT ] — 5 messages already transmitted in the last 24h. Try again tomorrow.'
       });
     }
 
+    // --- Gmail credentials check ---
     const gmailUser = process.env.GMAIL_USER;
     const gmailPass = process.env.GMAIL_APP_PASS;
 
     if (!gmailUser || !gmailPass) {
-      return json(500, { success: false, error: `Missing Gmail credentials. GMAIL_USER defined: ${!!gmailUser}, GMAIL_APP_PASS defined: ${!!gmailPass}` });
+      return json(500, {
+        success: false,
+        error: `Missing Gmail credentials. GMAIL_USER: ${!!gmailUser}, GMAIL_APP_PASS: ${!!gmailPass}`
+      });
     }
 
+    // --- Sanitize inputs ---
     const safeName = escapeHtml(name);
     const safeEmail = escapeHtml(email);
     const safeSubject = escapeHtml(subject);
     const safeMessage = escapeHtml(message).replace(/\n/g, '<br />');
 
+    // --- Send email ---
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -129,9 +132,11 @@ export const handler = async (event) => {
       `
     });
 
+    // Update rate limit store after successful send
     recentTimestamps.push(now);
     rateLimitStore.set(ip, recentTimestamps);
 
+    // Fire-and-forget auto-reply confirmation to the sender
     transporter
       .sendMail({
         from: `"Kunal Lohaniya" <${gmailUser}>`,
@@ -168,13 +173,16 @@ export const handler = async (event) => {
           </div>
         `
       })
-      .catch((err) => {
+      .catch(err => {
         console.warn('Auto-reply send failed:', err);
       });
 
     return json(200, { success: true, message: 'Transmission successful.' });
   } catch (error) {
     console.error('sendMail hard failure:', error);
-    return json(500, { success: false, error: `sendMail hard failure: ${error.message}` });
+    return json(500, {
+      success: false,
+      error: `sendMail hard failure: ${error.message}`
+    });
   }
 };
