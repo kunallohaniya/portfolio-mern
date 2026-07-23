@@ -1,14 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { toast } from 'react-hot-toast';
 import { usePortfolioData } from '../hooks/usePortfolioData';
+import ReCAPTCHA from 'react-google-recaptcha';
 
-// Premium Contact Form Component — Honeypot spam protection (no reCAPTCHA)
+// Premium Contact Form Component
 const ContactForm = React.memo(() => {
-  // Honeypot ref — bots fill this, humans don't see it
-  const honeypotRef = useRef(null);
-  // Track form load time to catch instant-submit bots
-  const formLoadTime = useRef(Date.now());
-
+  const recaptchaRef = useRef(null);
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -110,6 +108,14 @@ const ContactForm = React.memo(() => {
       return;
     }
 
+    // reCAPTCHA check — required in production, optional in local dev
+    if (!recaptchaToken) {
+      if (!import.meta.env.DEV) {
+        toast.error('Please complete the reCAPTCHA verification.');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -121,10 +127,7 @@ const ContactForm = React.memo(() => {
           email: formData.email,
           subject: formData.subject,
           message: formData.message,
-          // Honeypot value — should be empty for real humans
-          _hp: honeypotRef.current ? honeypotRef.current.value : '',
-          // Time elapsed since form loaded (ms) — bots submit instantly
-          _ts: Date.now() - formLoadTime.current
+          recaptchaToken: recaptchaToken || ''
         })
       });
 
@@ -139,7 +142,7 @@ const ContactForm = React.memo(() => {
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error(
-            'Function route not found. Ensure the app is deployed on Netlify.'
+            'Function not found. Run with netlify dev for local testing.'
           );
         }
         if (response.status === 429) {
@@ -158,8 +161,9 @@ const ContactForm = React.memo(() => {
       );
       setFormData({ name: '', email: '', subject: '', message: '' });
       setErrors({});
+      if (recaptchaRef.current) recaptchaRef.current.reset();
+      setRecaptchaToken(null);
       setRateLimitError('');
-      formLoadTime.current = Date.now();
     } catch (error) {
       console.error('Transmission failed:', error);
       toast.error(
@@ -183,24 +187,6 @@ const ContactForm = React.memo(() => {
         className="space-y-6"
         noValidate
       >
-        {/* Honeypot field — hidden from humans, traps bots */}
-        <input
-          ref={honeypotRef}
-          type="text"
-          name="_hp_field"
-          tabIndex={-1}
-          autoComplete="off"
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            left: '-9999px',
-            width: '1px',
-            height: '1px',
-            opacity: 0,
-            pointerEvents: 'none'
-          }}
-        />
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="font-mono text-xs">
             <label
@@ -240,7 +226,7 @@ const ContactForm = React.memo(() => {
               onChange={handleChange}
               onBlur={validateForm}
               required
-              className="w-full px-4 py-3 bg-[var(--base)] text-[var(--offwhite)] border border-[var(--border-dim)] outline-none focus:border-[var(--amber)] transition-colors duration-250 cursor-none"
+              className="w-full px-4 py-3 bg-[var(--base)] text-[var(--offwhite)] border border-[var(--amber)] outline-none focus:border-[var(--amber)] transition-colors duration-250 cursor-none"
               placeholder="YOUR EMAIL"
             />
             {errors.email && (
@@ -293,6 +279,17 @@ const ContactForm = React.memo(() => {
           {errors.message && (
             <p className="mt-1 text-[var(--alert)]">{errors.message}</p>
           )}
+        </div>
+
+        {/* Google reCAPTCHA Verification */}
+        <div style={{ display: 'flex', justifyContent: 'center', margin: '24px 0 12px 0' }}>
+          <ReCAPTCHA
+            ref={recaptchaRef}
+            sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+            onChange={(token) => setRecaptchaToken(token)}
+            onExpired={() => setRecaptchaToken(null)}
+            theme="dark"
+          />
         </div>
 
         {/* Rate Limiting Error Inline Display */}
@@ -406,7 +403,6 @@ const Contact = () => {
       id="contact"
       className="section-gap relative overflow-hidden bg-[var(--base)]"
     >
-      {/* Editorial section number texture */}
       <span
         className="section-number-bg"
         style={{ top: '-60px', right: '40px' }}
@@ -415,7 +411,6 @@ const Contact = () => {
       </span>
 
       <div className="container-editorial relative z-10">
-        {/* Header */}
         <div className="mb-20">
           <p className="label-caps-amber mb-4">CORRESPONDENCE</p>
           <h2 className="text-display mb-6">

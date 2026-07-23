@@ -3,8 +3,6 @@ import nodemailer from 'nodemailer';
 const rateLimitStore = new Map();
 const MAX_MESSAGES_PER_24H = 5;
 const WINDOW_MS = 24 * 60 * 60 * 1000;
-// Minimum time (ms) a human takes to fill out a form — bots are instant
-const MIN_SUBMIT_TIME_MS = 3000;
 
 const json = (statusCode, payload) => ({
   statusCode,
@@ -26,27 +24,68 @@ export const handler = async (event) => {
   }
 
   try {
-    const { name, email, subject, message, _hp, _ts } = JSON.parse(
+    const { name, email, subject, message, recaptchaToken } = JSON.parse(
       event.body || '{}'
     );
-
-    // --- Honeypot check: bots fill in hidden fields, humans don't ---
-    if (_hp && _hp.trim().length > 0) {
-      console.warn('Honeypot triggered — bot submission blocked.');
-      // Return 200 so bots think they succeeded (don't reveal the block)
-      return json(200, { success: true, message: 'Transmission successful.' });
-    }
-
-    // --- Timing check: block submissions faster than a human can type ---
-    const elapsed = typeof _ts === 'number' ? _ts : MIN_SUBMIT_TIME_MS + 1;
-    if (elapsed < MIN_SUBMIT_TIME_MS) {
-      console.warn(`Timing check failed — submitted in ${elapsed}ms (bot?).`);
-      return json(200, { success: true, message: 'Transmission successful.' });
-    }
 
     // --- Required field validation ---
     if (!name || !email || !subject || !message) {
       return json(400, { success: false, error: 'Missing required fields.' });
+    }
+
+    // --- reCAPTCHA verification ---
+    // Skipped in local dev when SKIP_RECAPTCHA=true in root .env
+    const skipRecaptcha = process.env.SKIP_RECAPTCHA === 'true';
+
+    if (!skipRecaptcha) {
+      if (!recaptchaToken) {
+        return json(400, {
+          success: false,
+          error: 'reCAPTCHA token missing. Please complete the verification.'
+        });
+      }
+
+      const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+      if (!recaptchaSecret) {
+        return json(500, {
+          success: false,
+          error: 'Server config error: RECAPTCHA_SECRET_KEY is not set.'
+        });
+      }
+
+      let recaptchaData;
+      try {
+        const recaptchaRes = await fetch(
+          'https://www.google.com/recaptcha/api/siteverify',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              secret: recaptchaSecret,
+              response: recaptchaToken
+            }).toString()
+          }
+        );
+        recaptchaData = await recaptchaRes.json();
+      } catch (fetchErr) {
+        console.error('Failed to reach Google reCAPTCHA API:', fetchErr);
+        return json(500, {
+          success: false,
+          error: 'Could not reach reCAPTCHA verification server.'
+        });
+      }
+
+      if (!recaptchaData.success) {
+        // Log the exact Google error codes for debugging in Netlify function logs
+        const codes = recaptchaData['error-codes'] || [];
+        console.error('reCAPTCHA rejected. Error codes:', codes);
+        return json(400, {
+          success: false,
+          error: `reCAPTCHA verification failed. Codes: ${codes.join(', ')}`
+        });
+      }
+    } else {
+      console.log('[DEV] reCAPTCHA skipped — SKIP_RECAPTCHA=true');
     }
 
     // --- Server-side IP rate limiting ---
@@ -85,13 +124,10 @@ export const handler = async (event) => {
     const safeSubject = escapeHtml(subject);
     const safeMessage = escapeHtml(message).replace(/\n/g, '<br />');
 
-    // --- Send email ---
+    // --- Send notification email to portfolio owner ---
     const transporter = nodemailer.createTransport({
       service: 'gmail',
-      auth: {
-        user: gmailUser,
-        pass: gmailPass
-      }
+      auth: { user: gmailUser, pass: gmailPass }
     });
 
     await transporter.sendMail({
@@ -103,8 +139,7 @@ export const handler = async (event) => {
         <div style="font-family:'Courier New',monospace;background:#0a0a0a;
                     color:#e5e5e5;padding:32px;max-width:600px;
                     border:1px solid #333;">
-          <p style="color:#F59E0B;letter-spacing:0.15em;font-size:11px;
-                    margin:0 0 24px">
+          <p style="color:#F59E0B;letter-spacing:0.15em;font-size:11px;margin:0 0 24px">
             ▸ PORTFOLIO / CONTACT TRANSMISSION
           </p>
           <p style="font-size:13px;line-height:1.8;margin:0 0 6px">
@@ -124,8 +159,7 @@ export const handler = async (event) => {
                       font-size:13px;line-height:1.8;color:#ccc">
             ${safeMessage}
           </div>
-          <p style="margin:32px 0 0;font-size:10px;color:#555;
-                    letter-spacing:0.1em">
+          <p style="margin:32px 0 0;font-size:10px;color:#555;letter-spacing:0.1em">
             KUNALPORTFOLIO.IN — SECURE CONTACT FORM
           </p>
         </div>
@@ -136,7 +170,7 @@ export const handler = async (event) => {
     recentTimestamps.push(now);
     rateLimitStore.set(ip, recentTimestamps);
 
-    // Fire-and-forget auto-reply confirmation to the sender
+    // Fire-and-forget auto-reply to sender
     transporter
       .sendMail({
         from: `"Kunal Lohaniya" <${gmailUser}>`,
@@ -146,8 +180,7 @@ export const handler = async (event) => {
           <div style="font-family:'Courier New',monospace;background:#0a0a0a;
                       color:#e5e5e5;padding:32px;max-width:600px;
                       border:1px solid #333;">
-            <p style="color:#F59E0B;letter-spacing:0.15em;font-size:11px;
-                      margin:0 0 24px">
+            <p style="color:#F59E0B;letter-spacing:0.15em;font-size:11px;margin:0 0 24px">
               ▸ TRANSMISSION CONFIRMED
             </p>
             <p style="font-size:14px;font-weight:600;margin:0 0 16px">
@@ -155,27 +188,22 @@ export const handler = async (event) => {
             </p>
             <p style="font-size:13px;line-height:1.9;color:#ccc;margin:0 0 24px">
               Your message has been received and logged.<br>
-              I review every inquiry personally and will get back
-              to you shortly.<br>
+              I review every inquiry personally and will get back to you shortly.<br>
               Until then — appreciate you reaching out.
             </p>
             <div style="border-top:1px solid #333;padding-top:20px;">
               <p style="font-size:13px;margin:0 0 4px">Kunal Lohaniya</p>
-              <p style="font-size:11px;color:#F59E0B;letter-spacing:0.1em;
-                        margin:0">
+              <p style="font-size:11px;color:#F59E0B;letter-spacing:0.1em;margin:0">
                 SOFTWARE ENGINEER — KUNALPORTFOLIO.IN
               </p>
             </div>
-            <p style="margin:32px 0 0;font-size:10px;color:#555;
-                      letter-spacing:0.08em">
+            <p style="margin:32px 0 0;font-size:10px;color:#555;letter-spacing:0.08em">
               This is an automated confirmation. Do not reply to this address.
             </p>
           </div>
         `
       })
-      .catch(err => {
-        console.warn('Auto-reply send failed:', err);
-      });
+      .catch(err => console.warn('Auto-reply send failed:', err));
 
     return json(200, { success: true, message: 'Transmission successful.' });
   } catch (error) {
