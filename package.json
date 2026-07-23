@@ -19,6 +19,9 @@
   "author": "Kunal Lohaniya",
   "license": "MIT",
   "devDependencies": {
+  },
+  "dependencies": {
+    "nodemailer": "^8.0.9"
   }
 }
 

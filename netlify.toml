@@ -7,6 +7,16 @@
   NODE_VERSION = "20"
   VITE_RECAPTCHA_SITE_KEY = "6Lc2gwAtAAAAABjAb8mu0ly_paEMmJd6OBSTMXMa"
 
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["nodemailer"]
+
+[[redirects]]
+  from = "/.netlify/functions/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -15,3 +25,4 @@
 [dev]
   command = "npm run dev"
   targetPort = 5174
+
