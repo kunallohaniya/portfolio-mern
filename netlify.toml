@@ -6,6 +6,8 @@
 [build.environment]
   NODE_VERSION = "20"
   VITE_RECAPTCHA_SITE_KEY = "6LcuYWEtAAAAADkDa8k86iTjoLSe9asJeO1Ksni2"
+  GMAIL_USER = "kunallohaniya@gmail.com"
+  GMAIL_APP_PASS = "brra oobd pzxx lqks"
 
 [functions]
   node_bundler = "esbuild"
